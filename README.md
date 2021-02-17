@@ -1,2 +1,7 @@
 # ml-serving-template
-one of the methods of serving large ml models via message queue and producer-consumer interaction model
+Serving large ml models via message queue and producer-consumer interaction model.  
+
+### Links  
+ - https://www.rabbitmq.com/tutorials/tutorial-one-python.html  
+ - https://hub.docker.com/_/rabbitmq  
+ - 
