@@ -1,0 +1,47 @@
+version: '2.4'
+
+services:
+  ml-serving:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: ml-serving:latest
+    network_mode: "host"
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - "variables.env"
+    depends_on: 
+      - rabbitmq
+      - redis
+    cpus: '8'
+    mem_limit: 12000M
+
+  rabbitmq:
+    image: rabbitmq:3.8-alpine
+    restart: unless-stopped
+    hostname: my-rabbit
+    volumes:
+      - "./data/rabbit:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit"
+    ports:
+      - "8002:5672"
+    environment:
+      - RABBITMQ_VM_MEMORY_HIGH_WATERMARK=0.7
+    cpus: '4'
+    mem_limit: 1024M
+
+  redis:
+    image: redis:6.0-alpine
+    restart: unless-stopped
+    volumes:
+      - "./data/redis:/data"
+    ports:
+      - "8001:6379"
+    command:
+      - redis-server
+      - --save ''
+      - --maxmemory-policy volatile-ttl
+      - --maxmemory 512mb
+    cpus: '2'
+    mem_limit: 1024M
