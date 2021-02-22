@@ -13,10 +13,11 @@ services:
     env_file:
       - "variables.env"
     depends_on: 
-      redis:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
+      redis:
+        # wait time for rabbitmq must be enough to start redis too
+        condition: service_started
     cpus: '8'
     mem_limit: 12000M
 

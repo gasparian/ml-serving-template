@@ -36,5 +36,6 @@ COPY . .
 
 EXPOSE 5000
 
+# TO DO: add proper logging in app and remove `-u` from here
 ENTRYPOINT ["python3", "-u", "-m", "app"]
 # ENTRYPOINT ["bash"]

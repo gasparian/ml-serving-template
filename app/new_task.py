@@ -23,3 +23,5 @@ channel.basic_publish(
     ))
 print(" [x] Sent %r" % message)
 connection.close()
+
+# TO DO: check result in redis
