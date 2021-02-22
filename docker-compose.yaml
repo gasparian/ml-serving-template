@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: ml-serving:latest
+    # NOTE: to be able to reach rabbit and redis which are running on the host machine
     network_mode: "host"
     restart: unless-stopped
     ports:
@@ -16,7 +17,7 @@ services:
       rabbitmq:
         condition: service_healthy
       redis:
-        # wait time for rabbitmq must be enough to start redis too
+        # NOTE: wait time for rabbitmq must be enough to start redis too
         condition: service_started
     cpus: '8'
     mem_limit: 12000M
