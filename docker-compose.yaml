@@ -3,7 +3,7 @@ version: '2.4'
 services:
   ml-serving:
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile
     image: ml-serving:latest
     network_mode: "host"
@@ -13,21 +13,31 @@ services:
     env_file:
       - "variables.env"
     depends_on: 
-      - rabbitmq
-      - redis
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     cpus: '8'
     mem_limit: 12000M
 
   rabbitmq:
-    image: rabbitmq:3.8-alpine
+    build: 
+      context: ./rabbitmq
+      dockerfile: Dockerfile
     restart: unless-stopped
     hostname: my-rabbit
     volumes:
       - "./data/rabbit:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit"
     ports:
-      - "8002:5672"
+      - "15672:15672"
+      - "5672:5672"
     environment:
       - RABBITMQ_VM_MEMORY_HIGH_WATERMARK=0.7
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
     cpus: '4'
     mem_limit: 1024M
 
@@ -37,7 +47,7 @@ services:
     volumes:
       - "./data/redis:/data"
     ports:
-      - "8001:6379"
+      - "6379:6379"
     command:
       - redis-server
       - --save ''

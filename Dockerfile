@@ -36,5 +36,5 @@ COPY . .
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3", "-m", "app"]
+ENTRYPOINT ["python3", "-u", "-m", "app"]
 # ENTRYPOINT ["bash"]

@@ -20,4 +20,3 @@ python -m app
  - https://www.rabbitmq.com/tutorials/tutorial-one-python.html  
  - https://hub.docker.com/_/rabbitmq  
  - https://hub.docker.com/_/redis  
- - use [falcon](https://falcon.readthedocs.io/en/stable/) and [bjoern](https://github.com/jonashaag/bjoern). See the [example](https://alexpnt.github.io/2018/01/06/fast-inference-falcon-bjoern/)  
