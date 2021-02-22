@@ -1,0 +1,8 @@
+mypy==0.812
+requests==2.22.0
+numpy==1.15.4
+git+https://github.com/numpy/numpy-stubs.git
+fasttext==0.9.1
+pika==1.2.0
+redis==3.5.3
+ujson==4.0.0
