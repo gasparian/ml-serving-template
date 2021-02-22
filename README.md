@@ -1,7 +1,7 @@
 # ml-serving-template
 Serving large ml models via message queue and key-value storage.  
 
-<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/master/pics/logo.jpg" height=400/> </p>  
+<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo.jpg" height=400/> </p>  
 
 ### Building and running  
 
