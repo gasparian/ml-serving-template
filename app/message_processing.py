@@ -22,6 +22,7 @@ class Config(object):
     REDIS_HOST, REDIS_PORT = os.environ["REDIS_ADDR"].split(":")
     RABBIT_HOST, RABBIT_PORT = os.environ["RABBITMQ_ADDR"].split(":")
     MODEL_PATH = os.environ["MODEL_PATH"]
+    QUEUE_NAME = os.environ["QUEUE_NAME"]
 
 class RedisWrapper(object):
     def __init__(self, redis_host: str, redis_port: str, ttl: int):
@@ -32,7 +33,7 @@ class RedisWrapper(object):
         self.__cache.set(key, value, ex=self.__ttl)
 
 class RabbitWrapper(object):
-    def __init__(self, rabbit_host: str, rabbit_port: str, prefetch: int):
+    def __init__(self, rabbit_host: str, rabbit_port: str, prefetch: int, queue_name: str):
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=rabbit_host,
@@ -41,20 +42,21 @@ class RabbitWrapper(object):
         )
         self.__channel = connection.channel()
         self.__prefetch = prefetch
+        self.__queue_name = queue_name
     
     def create_queue(self):
-        self.__channel.queue_declare(queue='task_queue', durable=True)
+        self.__channel.queue_declare(queue=self.__queue_name, durable=True)
     
     def consume(self, callback: Callable) -> None:
         self.__channel.basic_qos(prefetch_count=self.__prefetch)
-        self.__channel.basic_consume(queue='task_queue', on_message_callback=callback)
+        self.__channel.basic_consume(queue=self.__queue_name, on_message_callback=callback)
         self.__channel.start_consuming()
 
 class MessageProcessor(object):
     def __init__(self, config: Config):
         self.__logger = config.LOGGER
         self.__predictor = Predictor(config.MODEL_PATH)
-        self.__rabbit = RabbitWrapper(config.RABBIT_HOST, config.RABBIT_PORT, config.PREFETCH_COUNT)
+        self.__rabbit = RabbitWrapper(config.RABBIT_HOST, config.RABBIT_PORT, config.PREFETCH_COUNT, config.QUEUE_NAME)
         self.__redis = RedisWrapper(config.REDIS_HOST, config.REDIS_PORT, config.REDIS_TTL)
 
     def __callback(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, properties: pika.spec.BasicProperties, body: bytes) -> None:
