@@ -26,6 +26,7 @@ You also can run a small test on running container using the producer:
  - how to merge several env files?;  
  - deal with `common` module distribution across all consumers and producers;  
  - migrate `short-texts-clustering` to falcon and bjoern;  
+ - add mocking and unittests to `short-texts-clustering`;  
  - add readme to the consumers;  
  - update readme here;  
  - think of an additional wrapper for producer;  
