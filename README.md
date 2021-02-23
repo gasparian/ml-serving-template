@@ -21,3 +21,8 @@ You also can run a small test on running container using the producer:
 ```
 ./docker_test.sh
 ```  
+
+### TO DO  
+ - fill the readme!;  
+ - test with the real fasttext model and API client service;  
+ - think of an additional wrapper for producer;  
