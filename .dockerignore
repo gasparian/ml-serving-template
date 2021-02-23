@@ -1,8 +1,10 @@
 /data
 /env
+/modelS
 .gitignore
 .dockerignore
 *.yaml
 *.md
 *.env
+/.mypy*
 Dockerfile

@@ -9,13 +9,8 @@ RUN apt-get clean && apt-get update && \
         && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip --no-cache-dir install \
-    requests==2.22.0 \
-    numpy==1.15.4 \
-    fasttext==0.9.1 \
-    pika==1.2.0 \
-    redis==3.5.3 \
-    ujson==4.0.0
+COPY requirements.txt requirements.txt
+RUN python3 -m pip --no-cache-dir install -r requirements.txt
 
 RUN apt-get update \
     && apt-get purge -y \
@@ -30,4 +25,4 @@ COPY . .
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3", "-m", "app"]
+ENTRYPOINT ["python3", "-m", "consumer"]

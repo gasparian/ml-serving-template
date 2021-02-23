@@ -6,11 +6,15 @@ services:
       context: .
       dockerfile: Dockerfile
     image: ml-serving:latest
-    # NOTE: to be able to reach rabbit and redis which are running on the host machine
+    # NOTE: network_mode here is only for test purposes - 
+    #       - in real life rabbit and redis usually not running 
+    #       on the same machine with your app
     network_mode: "host"
     restart: unless-stopped
     ports:
       - "5000:5000"
+    volumes:
+      - "./models:/models"
     env_file:
       - "variables.env"
     depends_on: 
@@ -49,7 +53,7 @@ services:
     volumes:
       - "./data/redis:/data"
     ports:
-      - "6379:6379"
+      - "6380:6379"
     command:
       - redis-server
       - --save ''

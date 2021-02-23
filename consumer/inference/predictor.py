@@ -33,9 +33,9 @@ class Predictor(PredictorBase):
                 i += 1
         mean_vec /= i
         return ujson.dumps({
-            "max": max_vec,
-            "min": min_vec,
-            "mean": mean_vec
+            "max": max_vec.tolist(),
+            "min": min_vec.tolist(),
+            "mean": mean_vec.tolist()
 	    })
 
 class PredictorMock(PredictorBase):
@@ -44,7 +44,7 @@ class PredictorMock(PredictorBase):
 
     def predict(self, data: bytes) -> str:
         return ujson.dumps({
-            "max": np.full(10, 1),
-            "min": np.full(10, 0),
-            "mean": np.full(10, 0.5)
+            "max": np.full(10, 1).tolist(),
+            "min": np.full(10, 0).tolist(),
+            "mean": np.full(10, 0.5).tolist()
         })
