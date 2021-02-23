@@ -1,0 +1,21 @@
+version: '2.4'
+
+services:
+  ml-serving:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ml-serving:latest
+    # NOTE: network_mode here is only for test purposes - 
+    #       - in real life rabbit and redis usually not running 
+    #       on the same machine with your app
+    network_mode: "host"
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./models:/models"
+    env_file:
+      - "variables.env"
+    cpus: '8'
+    mem_limit: 12000M

@@ -1,20 +1,14 @@
-import os, sys
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
 import logging
 import pika # type: ignore
 
-from common import Config # type: ignore
-from common.wrappers import RedisWrapper, RabbitWrapper
-from .inference import PredictorMock as Predictor # type: ignore
-# from inference import Predictor
+from .config import Config # type: ignore
+from .wrappers import RedisWrapper, RabbitWrapper
+from .inference_base import PredictorBase
 
 class MessageProcessor(object):
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, predictor: PredictorBase):
         self.__logger = config.LOGGER
-        self.__predictor = Predictor(config.MODEL_PATH)
+        self.__predictor = predictor
         self.__queue = RabbitWrapper(config)
         self.__cache = RedisWrapper(config)
 
@@ -29,3 +23,10 @@ class MessageProcessor(object):
         self.__queue.declare_queue()
         self.__logger.info(' [*] Waiting for messages. To exit press CTRL+C')
         self.__queue.consume(self.__callback)
+
+
+def main(predictor: PredictorBase) -> None:
+    # Predictor(config.MODEL_PATH)
+    config = Config()
+    proc = MessageProcessor(config, predictor)
+    proc.run()

@@ -4,7 +4,7 @@ from typing import Dict, Any
 import ujson
 import fasttext # type: ignore
 import numpy as np
-from .base import PredictorBase # type: ignore
+from base import PredictorBase # type: ignore
 
 Prediction = Dict[str, np.ndarray]
 

@@ -1,0 +1,6 @@
+/notebooks
+__pycache__
+*.mypy_cache*
+*html*
+/data
+.vscode

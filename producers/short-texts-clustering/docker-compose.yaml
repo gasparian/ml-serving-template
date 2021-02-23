@@ -1,0 +1,18 @@
+version: '2.4'
+
+services:
+  semantic-clustering:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    image: semantic-clustering:latest
+    restart: unless-stopped 
+    ports:
+      - "8010:5000" # main app
+#      - "8009:8001" # prometheus metrics
+    volumes:
+      - "/samsung_drive/fasttext:/fasttext"
+    env_file:
+      - "variables.env"
+    cpus: '8'
+    mem_limit: 8192M

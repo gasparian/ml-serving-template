@@ -1,0 +1,12 @@
+__pycache__
+.mypy_cache
+Dockerfile
+.gitignore
+.git
+data
+notebooks
+README.md
+run_docker.sh
+docker-compose.yaml
+.vscode
+env
