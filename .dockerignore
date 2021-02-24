@@ -1,0 +1,11 @@
+/data
+/env
+/rabbitmq
+**/models
+**/*.gitignore
+**/*.dockerignore
+**/*.yaml
+**/*.md
+**/*.env
+**/*.mypy*
+**/Dockerfile

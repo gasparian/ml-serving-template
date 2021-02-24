@@ -1,5 +1,0 @@
-/models
-.dockerignore
-*.yaml
-*.md
-Dockerfile

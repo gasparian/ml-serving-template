@@ -1,9 +1,7 @@
-import os, sys
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
 import os
+os.sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))) # type: ignore
+
+import sys
 import time
 import uuid
 
@@ -19,7 +17,7 @@ if len(sys.argv) == 2 and sys.argv[1]:
     count = int(sys.argv[1])
 
 config = Config()
-redis = RedisWrapper(config)
+cache = RedisWrapper(config)
 rabbit = RabbitWrapper(config)
 
 rabbit.declare_queue()
@@ -38,7 +36,7 @@ for i in range(count):
     c = 0
     item = None
     while c < 2:
-        item = redis[message["Key"]]
+        item = cache[message["Key"]]
         if item:
             break
         else:

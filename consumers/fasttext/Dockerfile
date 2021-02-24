@@ -9,7 +9,7 @@ RUN apt-get clean && apt-get update && \
         && \
     rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt requirements.txt
+COPY ./consumers/fasttext/requirements.txt requirements.txt
 RUN python3 -m pip --no-cache-dir install -r requirements.txt
 
 RUN apt-get update \
@@ -21,8 +21,9 @@ RUN apt-get update \
 
 ###########################################################
 
-COPY . .
+COPY ./common ./common
+COPY ./consumers/fasttext ./consumers/fasttext
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3", "-m", "consumer"]
+ENTRYPOINT ["python3", "./consumers/fasttext/main.py"]

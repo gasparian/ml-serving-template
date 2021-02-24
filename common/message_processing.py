@@ -1,9 +1,10 @@
 import logging
-import pika # type: ignore
+from typing import Type
 
+import pika # type: ignore
 from .config import Config # type: ignore
 from .wrappers import RedisWrapper, RabbitWrapper
-from .inference_base import PredictorBase
+from .inference import PredictorBase
 
 class MessageProcessor(object):
     def __init__(self, config: Config, predictor: PredictorBase):
@@ -25,8 +26,8 @@ class MessageProcessor(object):
         self.__queue.consume(self.__callback)
 
 
-def main(predictor: PredictorBase) -> None:
-    # Predictor(config.MODEL_PATH)
+def runMessageProcessor(predictor_class: Type[PredictorBase]) -> None:
     config = Config()
+    predictor = predictor_class(config.MODEL_PATH)
     proc = MessageProcessor(config, predictor)
     proc.run()

@@ -3,8 +3,8 @@ version: '2.4'
 services:
   ml-serving:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: ./consumers/fasttext/Dockerfile
     image: ml-serving:latest
     # NOTE: network_mode here is only for test purposes - 
     #       - in real life rabbit and redis usually not running 
@@ -14,8 +14,11 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - "./models:/models"
+      - "./consumers/fasttext/models:/models"
     env_file:
+      - "../../common/variables.env"
       - "variables.env"
+    # stdin_open: true # docker run -i
+    # tty: true        # docker run -t
     cpus: '8'
     mem_limit: 12000M

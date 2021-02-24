@@ -1,10 +1,13 @@
+import os
+os.sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))) # type: ignore
+
 import re
 from typing import Dict, Any
 
 import ujson
 import fasttext # type: ignore
 import numpy as np
-from base import PredictorBase # type: ignore
+from common.inference import PredictorBase # type: ignore
 
 Prediction = Dict[str, np.ndarray]
 
