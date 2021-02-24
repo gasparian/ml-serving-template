@@ -10,7 +10,7 @@ class RedisWrapper(object):
         self.__cache = redis.Redis(host=config.REDIS_HOST, port=int(config.REDIS_PORT))
         self.__ttl = config.REDIS_TTL
 
-    def __setitem__(self, key: Any, value: Any) -> None:
+    def __setitem__(self, key: str, value: Any) -> None:
         self.__cache.set(key, value, ex=self.__ttl)
 
     def __getitem__(self, key: str) -> Any:
