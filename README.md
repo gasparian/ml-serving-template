@@ -24,3 +24,4 @@ Example consumers:
  - add mocking and unittests to `short-texts-clustering`;  
  - add readme to the consumers;  
  - update readme here;  
+ - github actions badges! (build / test);  
