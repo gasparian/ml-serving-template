@@ -1,5 +1,5 @@
 import os
-os.sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))) # type: ignore
+os.sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))) # type: ignore
 
 import re
 from typing import Dict, Any

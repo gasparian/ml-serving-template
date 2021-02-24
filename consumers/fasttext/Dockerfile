@@ -26,4 +26,4 @@ COPY ./consumers/fasttext ./consumers/fasttext
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3", "./consumers/fasttext/main.py"]
+ENTRYPOINT ["python3", "./consumers/fasttext/src/main.py"]
