@@ -1,5 +1,5 @@
 # ml-serving-template
-Serving large ml models via message queue and key-value storage.  
+Serving large ml models independently via message queue and key-value storage for communicating with other services.  
 
 <p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo.jpg" height=320/> </p>  
 

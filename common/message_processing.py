@@ -24,7 +24,6 @@ class MessageProcessor(object):
         self.__logger.info(' [*] Waiting for messages. To exit press CTRL+C')
         self.__queue.consume(self.__callback)
 
-
 def runMessageProcessor(predictor: PredictorBase) -> None:
     config = Config()
     proc = MessageProcessor(config, predictor)
