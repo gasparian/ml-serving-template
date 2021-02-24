@@ -10,7 +10,11 @@ from scipy.cluster.hierarchy import fcluster
 from scipy.spatial.distance import pdist # type: ignore
 from scipy.spatial import distance # type: ignore
 
-from .feature_extractors import FasttextExtractor, TfidfExtractor
+# TO DO: replace with real class after tests
+# from .feature_extractors import FasttextExtractor
+from .feature_extractors import FasttextExtractorMock as FasttextExtractor
+
+from .feature_extractors import TfidfExtractor
 from .helpers import FasttextPredictor, NaiveLangDetector
 from .preprocessing import Preprocessor
 

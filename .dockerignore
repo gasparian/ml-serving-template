@@ -1,7 +1,12 @@
+.vscode
+__pycache__
+**/*__pycache__*
 /data
 /env
 /rabbitmq
+**/notebooks
 **/models
+**/*.git
 **/*.gitignore
 **/*.dockerignore
 **/*.yaml

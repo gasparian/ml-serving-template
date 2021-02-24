@@ -3,9 +3,13 @@ version: '2.4'
 services:
   semantic-clustering:
     build:
-      context: ./
-      dockerfile: ./Dockerfile
+      context: ../..
+      dockerfile: ./producers/short-texts-clustering/Dockerfile
     image: semantic-clustering:latest
+    # NOTE: network_mode here is only for test purposes - 
+    #       - in real life rabbit and redis usually not running 
+    #       on the same machine with your app
+    network_mode: "host"
     restart: unless-stopped 
     ports:
       - "8010:5000" # main app
@@ -13,6 +17,10 @@ services:
     volumes:
       - "/samsung_drive/fasttext:/fasttext"
     env_file:
+      - "../../common/variables.env"
       - "variables.env"
+    # NOTE: uncomment for tests
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
     cpus: '8'
     mem_limit: 8192M

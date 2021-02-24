@@ -1,0 +1,10 @@
+mypy==0.812
+requests==2.22.0
+pika==1.2.0
+redis==3.5.3
+ujson==4.0.0
+bjoern==3.1.0
+numpy==1.16.0
+scipy==1.1.0
+scikit-learn==0.23.1
+nltk==3.4
