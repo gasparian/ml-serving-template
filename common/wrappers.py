@@ -13,7 +13,7 @@ class RedisWrapper(object):
     def __setitem__(self, key: Any, value: Any) -> None:
         self.__cache.set(key, value, ex=self.__ttl)
 
-    def __getitem__(self, key: Any) -> Any:
+    def __getitem__(self, key: str) -> Any:
         return self.__cache.get(key)
 
 class RabbitWrapper(object):
