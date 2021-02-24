@@ -1,5 +1,4 @@
 import logging
-from typing import Type
 
 import pika # type: ignore
 from .config import Config # type: ignore
@@ -26,8 +25,7 @@ class MessageProcessor(object):
         self.__queue.consume(self.__callback)
 
 
-def runMessageProcessor(predictor_class: Type[PredictorBase]) -> None:
+def runMessageProcessor(predictor: PredictorBase) -> None:
     config = Config()
-    predictor = predictor_class(config.MODEL_PATH)
     proc = MessageProcessor(config, predictor)
     proc.run()

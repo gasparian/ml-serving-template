@@ -5,4 +5,6 @@ from common.message_processing import runMessageProcessor
 from predictor import PredictorMock as Predictor
 # from predictor import Predictor
 
-runMessageProcessor(Predictor)
+model_path = os.environ["MODEL_PATH"]
+predictor = Predictor(model_path)
+runMessageProcessor(predictor)
