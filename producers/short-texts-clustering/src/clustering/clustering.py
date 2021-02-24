@@ -20,6 +20,7 @@ from .preprocessing import Preprocessor
 
 from .local_types import *
 
+# TO DO: send text to the fasttext inference server in batches!
 class ClusteringPipeline:
 
     def __init__(self, models_path, stop_words: Optional[List[str]] = None, min_cluster_size: int = 2):
