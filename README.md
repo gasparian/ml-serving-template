@@ -13,10 +13,10 @@ Running rabbit-mq and redis via docker-compose (preferable way):
 ./run_compose.sh
 ```  
 
-Example producers:  
+Example producer:  
  - [short-texts-clustering service](https://github.com/gasparian/ml-serving-template/blob/main/producers/short-texts-clustering)  
 
-Example consumers:  
+Example consumer:  
  - [fasttext inference](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext)  
 
 ### TO DO  
