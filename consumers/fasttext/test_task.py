@@ -1,6 +1,3 @@
-import os
-os.sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))) # type: ignore
-
 import sys
 import time
 import uuid
@@ -9,8 +6,8 @@ import ujson
 import redis
 import pika # type: ignore
 
-from common import Config # type: ignore
-from common.wrappers import RedisWrapper, RabbitWrapper
+from ml_serving_common import Config # type: ignore
+from ml_serving_common.wrappers import RedisWrapper, RabbitWrapper
 
 count = 1
 if len(sys.argv) == 2 and sys.argv[1]:

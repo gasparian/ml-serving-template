@@ -37,18 +37,6 @@ class ClusteringPipelineHandler(ClusteringPipeline):
 # import falcon
 # import ujson
 
-# logging.basicConfig(
-#     level=logging.DEBUG,
-#     format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
-#     datefmt="%d/%b/%Y %H:%M:%S",
-#     stream=sys.stdout
-# )
-# logger = logging.getLogger()
-
-# class ResponseLoggerMiddleware(object):
-#     def process_response(self, req, resp, resource, req_succeeded):
-#         logger.info('{0} {1} {2}'.format(req.method, req.relative_uri, resp.status[:3]))
-
 # class Status(object):
 #     def on_get(self, req, resp):
 #         resp.body = b"OK"

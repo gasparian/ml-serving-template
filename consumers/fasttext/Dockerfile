@@ -12,6 +12,11 @@ RUN apt-get clean && apt-get update && \
 COPY ./consumers/fasttext/requirements.txt requirements.txt
 RUN python3 -m pip --no-cache-dir install -r requirements.txt
 
+COPY ./common ./common
+WORKDIR /common
+RUN python3 -m pip --no-cache-dir install .
+WORKDIR /
+
 RUN apt-get update \
     && apt-get purge -y \
        build-essential \
@@ -21,7 +26,6 @@ RUN apt-get update \
 
 ###########################################################
 
-COPY ./common ./common
 COPY ./consumers/fasttext ./consumers/fasttext
 
 EXPOSE 5000

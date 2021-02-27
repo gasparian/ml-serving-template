@@ -1,3 +1,4 @@
 /data
 /env
 /.mypy*
+*__pycache__*
