@@ -1,11 +1,24 @@
 import time
 import json
+import logging
 from datetime import timedelta
 from functools import update_wrapper
 import traceback
 
 import numpy as np
 from flask import request, current_app, make_response, jsonify
+
+# logging.basicConfig(
+#     level=logging.DEBUG,
+#     format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+#     datefmt="%d/%b/%Y %H:%M:%S",
+#     stream=sys.stdout
+# )
+# logger = logging.getLogger()
+
+# class ResponseLoggerMiddleware(object):
+#     def process_response(self, req, resp, resource, req_succeeded):
+#         logger.info('{0} {1} {2}'.format(req.method, req.relative_uri, resp.status[:3]))
 
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,

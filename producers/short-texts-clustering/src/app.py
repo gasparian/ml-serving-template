@@ -45,7 +45,8 @@ def healthcheck() -> str:
 
 # import falcon
 # import bjoern
-# from handlers import *
+# from server.handlers import *
+# from server.middleware improt *
 
 # app = falcon.API(middleware=[ResponseLoggerMiddleware()])
 # app.req_options.auto_parse_form_urlencoded = True

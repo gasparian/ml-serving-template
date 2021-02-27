@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 import redis
 import pika # type: ignore
-from common import Config
+from .config import Config
 
 class RedisWrapper(object):
     def __init__(self, config: Config):

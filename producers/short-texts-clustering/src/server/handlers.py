@@ -63,7 +63,7 @@ class ClusteringPipelineHandler(ClusteringPipeline):
 #                 resp.body = ujson.dumps({"output" : output})
 #                 resp.status = falcon.HTTP_200
 #             except:
-#                 resp.body = ujson.dumps({'Error': 'An internal server error has occurred'})
+#                 resp.body = ujson.dumps({'Error': 'An internal server error has been occurred'})
 #                 resp.status = falcon.HTTP_500
 #         else:
 #             resp.body = ujson.dumps({'Error': 'param \'text\' is mandatory'})

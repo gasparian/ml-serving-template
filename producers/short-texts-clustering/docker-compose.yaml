@@ -12,8 +12,7 @@ services:
     network_mode: "host"
     restart: unless-stopped 
     ports:
-      - "8010:5000" # main app
-#      - "8009:8001" # prometheus metrics
+      - "5000:5000"
     volumes:
       - "/samsung_drive/fasttext:/fasttext"
     env_file:
