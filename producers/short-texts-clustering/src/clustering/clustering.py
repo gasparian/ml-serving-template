@@ -10,12 +10,8 @@ from scipy.cluster.hierarchy import fcluster
 from scipy.spatial.distance import pdist # type: ignore
 from scipy.spatial import distance # type: ignore
 
-# TO DO: replace with real class after tests
-# from .feature_extractors import FasttextExtractor
-from .feature_extractors import FasttextExtractorMock as FasttextExtractor
-
-from .feature_extractors import TfidfExtractor
-from .helpers import FasttextPredictor, NaiveLangDetector
+from .feature_extractors import FasttextExtractor, TfidfExtractor
+from .models import NaiveLangDetector
 from .preprocessing import Preprocessor
 
 from .local_types import *
@@ -23,13 +19,13 @@ from .local_types import *
 # TO DO: send text to the fasttext inference server in batches!
 class ClusteringPipeline:
 
-    def __init__(self, models_path, stop_words: Optional[List[str]] = None, min_cluster_size: int = 2):
+    def __init__(self, stop_words: Optional[List[str]] = None, min_cluster_size: int = 2):
         self.__lang_detector = NaiveLangDetector()
         self.__outliers_class_name = "none"
         self.__preprocessor = Preprocessor(stop_words=stop_words, placeholder=self.__outliers_class_name)
         self.__fasttext_extractor = FasttextExtractor(
-            models_path, 
-            partial(self.__preprocessor.run, replace_dates=False, replace_digits=False)
+            partial(self.__preprocessor.run, replace_dates=False, replace_digits=False),
+            center_data=False # True for the real fasttext model
         )
         self.__tfidf_extractor = TfidfExtractor(
             partial(self.__preprocessor.run, replace_dates=True, replace_digits=True)

@@ -19,7 +19,7 @@ services:
       - "../../common/variables.env"
       - "variables.env"
     # NOTE: uncomment for tests
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
+    # stdin_open: true # docker run -i
+    # tty: true        # docker run -t
     cpus: '8'
     mem_limit: 8192M

@@ -7,7 +7,7 @@ from .inference import PredictorBase
 
 class MessageProcessor(object):
     def __init__(self, config: Config, predictor: PredictorBase):
-        self.__logger = config.LOGGER
+        self.__logger = config.logger
         self.__predictor = predictor
         self.__queue = RabbitWrapper(config)
         self.__cache = RedisWrapper(config)
@@ -24,7 +24,6 @@ class MessageProcessor(object):
         self.__logger.info(' [*] Waiting for messages. To exit press CTRL+C')
         self.__queue.consume(self.__callback)
 
-def runMessageProcessor(predictor: PredictorBase) -> None:
-    config = Config()
+def runMessageProcessor(config: Config, predictor: PredictorBase) -> None:
     proc = MessageProcessor(config, predictor)
     proc.run()

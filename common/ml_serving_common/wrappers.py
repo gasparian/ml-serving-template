@@ -7,8 +7,8 @@ from .config import Config
 
 class RedisWrapper(object):
     def __init__(self, config: Config):
-        self.__cache = redis.Redis(host=config.REDIS_HOST, port=int(config.REDIS_PORT))
-        self.__ttl = config.REDIS_TTL
+        self.__cache = redis.Redis(host=config.redis_host, port=config.redis_port)
+        self.__ttl = config.redis_ttl
 
     def __setitem__(self, key: str, value: Any) -> None:
         self.__cache.set(key, value, ex=self.__ttl)
@@ -20,16 +20,16 @@ class RabbitWrapper(object):
     def __init__(self, config: Config):
         self.__connection = pika.BlockingConnection(
             pika.ConnectionParameters(
-                host=config.RABBIT_HOST,
-                port=config.RABBIT_PORT
+                host=config.rabbit_host,
+                port=config.rabbit_port
             )
         )
         self.__channel = self.__connection.channel()
-        self.__prefetch = config.PREFETCH_COUNT
-        self.__queue_name = config.QUEUE_NAME
-        self.__rabbit_ttl = config.RABBIT_TTL
-        self.__exchange_name = config.EXCHANGE_NAME
-        self.__exchange_type = config.EXCHANGE_TYPE
+        self.__prefetch = config.prefetch_count
+        self.__queue_name = config.queue_name
+        self.__rabbit_ttl = config.rabbit_ttl
+        self.__exchange_name = config.exchange_name
+        self.__exchange_type = config.exchange_type
     
     def declare_queue(self):
         if self.__exchange_name:
@@ -39,6 +39,9 @@ class RabbitWrapper(object):
             )
         self.__channel.queue_declare(queue=self.__queue_name, durable=True)
     
+    # TO DO: make able to consume and check the message header 
+    # https://stackoverflow.com/questions/11142071/rabbitmq-selectively-retrieving-messages-from-a-queue/11142833
+    # https://livebook.manning.com/book/rabbitmq-in-depth/chapter-5/16
     def consume(self, callback: Callable) -> None:
         self.__channel.basic_qos(prefetch_count=self.__prefetch)
         self.__channel.basic_consume(queue=self.__queue_name, on_message_callback=callback)

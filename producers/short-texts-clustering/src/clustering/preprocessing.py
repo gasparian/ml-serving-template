@@ -45,9 +45,11 @@ class Preprocessor:
             text = self.__regex_sub_enums_dates.sub(" date ", text)
             text = self.__regex_sub_digits.sub("digit", text)
     
-        filtered_tokens: List[str] = [w for w in text.split() 
-                if w not in self.__stop_words
-                and len(w) > 2]
+        filtered_tokens: List[str] = [
+            w for w in text.split() 
+            if w not in self.__stop_words
+            and len(w) > 2
+        ]
         text = " ".join(filtered_tokens).strip()
         if len(text) == 0:
             text = self.__placeholder

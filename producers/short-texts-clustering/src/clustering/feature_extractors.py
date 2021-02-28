@@ -5,8 +5,10 @@ from typing import Union, Callable, List
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
 
+from .models import FasttextPredictorMock as FasttextPredictor
+# from .models import FasttextPredictor
+
 class TextFeaturesExtractor(abc.ABC):
-    
     def __init__(self, preprocessor: Callable[[str], str]):
         self.__preprocessor = preprocessor
 
@@ -23,7 +25,6 @@ class TextFeaturesExtractor(abc.ABC):
         pass
     
 class TfidfExtractor(TextFeaturesExtractor):
-    
     def __init__(self, preprocessor: Callable[[str], str]):
         super().__init__(preprocessor)
         self.model = TfidfVectorizer( 
@@ -49,35 +50,17 @@ class TfidfExtractor(TextFeaturesExtractor):
         return self.model.fit_transform(inp).toarray()
 
 # TO DO: rewrite method to get the features from other service
-# class FasttextExtractor(TextFeaturesExtractor):
-    
-#     def __init__(self, models_path: str, preprocessor: Callable[[str], str]):
-#         super().__init__(preprocessor)
-#         self.model = FasttextPredictor(path=os.path.join(models_path, "cc.en.300.bin")) # NOTE: consumes ~6-7Gb RAM
-
-#     def get_features(self, inp: Union[List[str], np.ndarray]) -> np.ndarray:
-#         vecs = np.empty((len(inp), 900))
-#         for i, text in enumerate(inp):
-#             vecs[i] = np.concatenate(list(self.model.get_features(text).values()))
-#         return vecs - vecs.mean(axis=0)
-
-class FasttextExtractorMock(TextFeaturesExtractor):
-    def __init__(self, models_path: str, preprocessor: Callable[[str], str]):
+class FasttextExtractor(TextFeaturesExtractor):
+    def __init__(self, preprocessor: Callable[[str], str], center_data: bool = False):
         super().__init__(preprocessor)
-        # NOTE: words has been taken from /test/cases.py
-        self.model = {
-            "pussy": np.full(900, 1.0),
-            "money": np.full(900, 0.5),
-            "weed": np.full(900, -0.5),
-            "sports": np.full(900, -1.0),
-        }
-        self.__thresh_vec = np.full(900, 10.0)
+        self.model = FasttextPredictor()
+        self.__center_data = center_data 
 
     def get_features(self, inp: Union[List[str], np.ndarray]) -> np.ndarray:
         vecs = np.empty((len(inp), 900))
         for i, text in enumerate(inp):
-            features = self.model.get(text)
-            if not features:
-                features = self.__thresh_vec
-            vecs[i] = features
-        return vecs - vecs.mean(axis=0)
+            vecs[i] = np.concatenate(list(self.model.get_features(text).values()))
+        if self.__center_data:
+            return vecs - vecs.mean(axis=0)
+        else:
+            return vecs

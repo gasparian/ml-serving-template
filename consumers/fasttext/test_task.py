@@ -9,6 +9,8 @@ import pika # type: ignore
 from ml_serving_common import Config # type: ignore
 from ml_serving_common.wrappers import RedisWrapper, RabbitWrapper
 
+# TO DO: use client here instead of custom code
+
 count = 1
 if len(sys.argv) == 2 and sys.argv[1]:
     count = int(sys.argv[1])

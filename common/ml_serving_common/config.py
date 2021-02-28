@@ -10,13 +10,23 @@ logging.basicConfig(
 )
 
 class Config(object):
-    def __init__(self):
-        self.LOGGER = logging.getLogger()
-        self.REDIS_TTL= int(os.environ["REDIS_TTL"]) 
-        self.PREFETCH_COUNT = int(os.environ["PREFETCH_COUNT"])
-        self.REDIS_HOST, self.REDIS_PORT = os.environ["REDIS_ADDR"].split(":")
-        self.RABBIT_HOST, self.RABBIT_PORT = os.environ["RABBITMQ_ADDR"].split(":")
-        self.QUEUE_NAME = os.environ["QUEUE_NAME"]
-        self.EXCHANGE_TYPE = os.environ["EXCHANGE_TYPE"]
-        self.EXCHANGE_NAME = os.environ["EXCHANGE_NAME"]
-        self.RABBIT_TTL = os.environ["RABBITMQ_TTL"]
+    __allowed = {
+        "redis_ttl": int,
+        "prefetch_count": int,
+        "redis_host": str,
+        "redis_port": int,
+        "rabbit_host": str, 
+        "rabbit_port": int,
+        "queue_name": str,
+        "exchange_type": str,
+        "exchange_name": str,
+        "rabbit_ttl": str
+    }
+
+    def __init__(self, **kwargs):
+        self.logger = logging.getLogger()
+        for arg, dtype in self.__allowed.items():
+            if arg in kwargs:
+                setattr(self, arg, dtype(kwargs[arg]))
+            else:
+                setattr(self, arg, dtype(os.environ[arg.upper()]))

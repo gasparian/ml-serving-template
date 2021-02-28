@@ -24,6 +24,11 @@ RUN python3 -m nltk.downloader stopwords
 RUN python3 -m pip --no-cache-dir install \
     -v --no-binary :all: falcon==2.0.0
 
+COPY ./common ./common
+WORKDIR /common
+RUN python3 -m pip --no-cache-dir install .
+WORKDIR /
+
 RUN apt-get update \
     && apt-get purge -y \
        build-essential \
@@ -33,12 +38,11 @@ RUN apt-get update \
 
 ###########################################################
 
-COPY ./common ./common
 COPY ./producers/short-texts-clustering ./producers/short-texts-clustering
 
 EXPOSE 5000
 
 WORKDIR /producers/short-texts-clustering/src
 
-# ENTRYPOINT ["python3", "./producers/short-texts-clustering/src/wsgi.py"]
-ENTRYPOINT [ "bash" ]
+ENTRYPOINT ["python3", "wsgi.py"]
+# ENTRYPOINT [ "bash" ]

@@ -1,7 +1,7 @@
 # ml-serving-template
-Serving large ml models independently via message queue and key-value storage for communicating with other services.  
+Serving large ml models independently via message queue for communication with other services.  
 
-<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo.jpg" height=320/> </p>  
+<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo2.jpg" height=320/> </p>  
 
 *TO DO*  
 
@@ -27,8 +27,7 @@ Example consumer:
  - [fasttext inference](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext)  
 
 ### TO DO  
- - migrate `short-texts-clustering` to falcon and bjoern;  
- - add mocking and unittests to `short-texts-clustering`;  
+ - **drop redis and make messages exchange only through message broker**;  
  - add readme to the consumers;  
  - update readme here;  
  - github actions badges! (build / test);  

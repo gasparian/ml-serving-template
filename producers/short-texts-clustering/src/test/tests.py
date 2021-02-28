@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import json
+import ujson
 import unittest
 
 import requests
@@ -23,18 +23,25 @@ def labels_check(inp: Labels, gt: Labels) -> bool:
     return True
 
 class TestClustering(unittest.TestCase):
-    endpoints = map(lambda route: globals()["endpoint"] + "/get-clusters/" + route, ["fasttext", "tfidf"])
+    endpoints = [
+        "http://localhost:5000/get-clusters/fasttext",
+        "http://localhost:5000/get-clusters/tfidf"
+    ]
 
     def check(self, test_case: ClientInput, answer: ClusteringAnswer) -> None:
-        serilized_test_case = json.dumps(test_case)
+        serilized_test_case = ujson.dumps(test_case)
         for endpoint in self.endpoints:
             response = requests.post(endpoint, data=serilized_test_case)
+            resp_content = ujson.loads(response.content)
+
+            print(endpoint)
+            print(resp_content)
+            print(answer)
+
             self.assertEqual(response.status_code, 200)
-            resp_content = json.loads(response.content)
-            self.assertEqual(resp_content["status"], "success")
-            titles_check = set(resp_content["result"]["titles"].values()).intersection(set(answer["titles"].values()))
+            titles_check = set(resp_content["titles"].values()).intersection(set(answer["titles"].values()))
             self.assertTrue(len(titles_check) == len(answer["titles"].values()))
-            self.assertTrue(labels_check(resp_content["result"]["labels"], answer["labels"]))
+            self.assertTrue(labels_check(resp_content["labels"], answer["labels"]))
 
     def test_positive(self):
         self.check(cases.TEST_CASE_POS, cases.ANSWER_POS)
@@ -43,6 +50,5 @@ class TestClustering(unittest.TestCase):
         self.check(cases.TEST_CASE_NEG, cases.ANSWER_NEG)
 
 if __name__ == '__main__':
-    endpoint = "http://localhost:5000"
     tmp = unittest.main(exit=False, verbosity=0)
     print(int(tmp.result.wasSuccessful()))

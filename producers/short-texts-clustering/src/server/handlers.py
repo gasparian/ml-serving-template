@@ -2,18 +2,29 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+import traceback
 from typing import Union, Dict, List, Optional, Any
+
+from nltk.corpus import stopwords # type: ignore
 import numpy as np
+import falcon
+import ujson
+
 from clustering import ClusteringPipeline
+
+class Status(object):
+    def on_get(self, req, resp):
+        resp.body = b"OK"
+        resp.status = falcon.HTTP_200
 
 ClientInput = Dict[str, str]
 Labels = Union[Dict[str, str], Dict[str, List[str]]]
 ClusteringAnswer = Dict[str, Labels]
 
 class ClusteringPipelineHandler(ClusteringPipeline):
-
-    def __init__(self, models_path: str, stop_words: Optional[List[str]] = None):
-        super().__init__(models_path, stop_words)
+    def __init__(self):
+        stops_en = stopwords.words('english')
+        super().__init__(stops_en)
 
     def get_clusters_handler(self, inp: ClientInput, mode: str = "tfidf") -> ClusteringAnswer:
         texts: List[str] = [w for w in inp.values()]
@@ -30,29 +41,16 @@ class ClusteringPipelineHandler(ClusteringPipeline):
         }
         return result
 
-# import sys
-# import logging
-
-# import fasttext
-# import falcon
-# import ujson
-
-# class Status(object):
-#     def on_get(self, req, resp):
-#         resp.body = b"OK"
-#         resp.status = falcon.HTTP_200
-
-# class Predictor(object):
-#     def on_post(self, req, resp):
-#         form = req.params
-#         if 'text' in form and form['text']:
-#             try:
-#                 output = form["text"]
-#                 resp.body = ujson.dumps({"output" : output})
-#                 resp.status = falcon.HTTP_200
-#             except:
-#                 resp.body = ujson.dumps({'Error': 'An internal server error has been occurred'})
-#                 resp.status = falcon.HTTP_500
-#         else:
-#             resp.body = ujson.dumps({'Error': 'param \'text\' is mandatory'})
-#             resp.status = falcon.HTTP_400
+    def on_post(self, req, resp, mode: str) -> None:
+        if req.content_length:
+            try:
+                inp = ujson.loads(req.stream.read())
+                answer = self.get_clusters_handler(inp, mode)
+                resp.body = ujson.dumps(answer)
+                resp.status = falcon.HTTP_200
+            except Exception as e:
+                resp.body = ujson.dumps({'Error': traceback.format_exc()})
+                resp.status = falcon.HTTP_500
+        else:
+            resp.body = ujson.dumps({'Error': 'data payload is mandatory'})
+            resp.status = falcon.HTTP_400
