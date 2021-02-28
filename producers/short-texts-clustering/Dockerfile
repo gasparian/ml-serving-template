@@ -45,4 +45,3 @@ EXPOSE 5000
 WORKDIR /producers/short-texts-clustering/src
 
 ENTRYPOINT ["python3", "wsgi.py"]
-# ENTRYPOINT [ "bash" ]
