@@ -1,7 +1,7 @@
 # ml-serving-template
 Serving large ml models independently via message queue for communication with other services.  
 
-<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo2.jpg" height=320/> </p>  
+<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo3.jpg" height=320/> </p>  
 
 *TO DO*  
 
@@ -27,7 +27,7 @@ Example consumer:
  - [fasttext inference](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext)  
 
 ### TO DO  
- - **drop redis and make messages exchange only through message broker**;  
- - add readme to the consumers;  
- - update readme here;  
+ - update all readme's;  
  - github actions badges! (build / test);  
+ - add ability to clusterize based on passed clusters names;  
+ - add load tests via `locust` to the clusterizer;  

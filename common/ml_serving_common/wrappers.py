@@ -39,15 +39,12 @@ class RabbitWrapper(object):
             )
         self.__channel.queue_declare(queue=self.__queue_name, durable=True)
     
-    # TO DO: make able to consume and check the message header 
-    # https://stackoverflow.com/questions/11142071/rabbitmq-selectively-retrieving-messages-from-a-queue/11142833
-    # https://livebook.manning.com/book/rabbitmq-in-depth/chapter-5/16
     def consume(self, callback: Callable) -> None:
         self.__channel.basic_qos(prefetch_count=self.__prefetch)
         self.__channel.basic_consume(queue=self.__queue_name, on_message_callback=callback)
         self.__channel.start_consuming()
 
-    def produce(self, key: str, value: Any) -> None:
+    def produce(self, key: str, value: bytes) -> None:
         self.__channel.basic_publish(
             exchange=self.__exchange_name,
             routing_key=self.__queue_name,

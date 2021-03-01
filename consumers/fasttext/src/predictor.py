@@ -14,8 +14,8 @@ class Predictor(PredictorBase):
         self.__model = fasttext.load_model(path)
         self.__regex = re.compile("\W+")
 
-    def predict(self, data: bytes) -> str:
-        splitted = set(self.__regex.split(data.decode()))
+    def predict(self, data: str):
+        splitted = set(self.__regex.split(data))
         mean_vec, min_vec, max_vec = np.zeros(300), np.zeros(300), np.zeros(300)
 
         max_vec_norm = -np.inf
@@ -32,19 +32,39 @@ class Predictor(PredictorBase):
                 mean_vec += vec / norm
                 i += 1
         mean_vec /= i
-        return ujson.dumps({
+        return {
             "max": max_vec.tolist(),
             "min": min_vec.tolist(),
             "mean": mean_vec.tolist()
-	    })
+	    }
 
-class PredictorMock(PredictorBase):
+# NOTE: only for tests without feature extraction service
+class FasttextPredictorMock(PredictorBase):
+    """
+    Needed for tests only.
+    It gets the first word, computes the hash
+    and populates the whole vector with it
+    """
     def __init__(self, path: str):
-        pass
+        self.__model = lambda w: self.__get_word_vec(w)
+        self.__regex = re.compile("\W+")
 
-    def predict(self, data: bytes) -> str:
-        return ujson.dumps({
-            "max": np.full(10, 1).tolist(),
-            "min": np.full(10, 0).tolist(),
-            "mean": np.full(10, 0.5).tolist()
-        })
+    def __get_word_vec(self, word: str):
+        d = np.zeros(300)
+        for i, l in enumerate(word):
+            idx = min(299, int(l) - 97)
+            d[idx] += 1
+        return d
+
+    def predict(self, data: str):
+        splitted = list(self.__regex.split(data))
+        mean_vec = np.zeros(300)
+        for w in splitted:
+            mean_vec[:] = self.__model(w.lower().encode("utf-8"))
+            break
+        min_vec = max_vec = mean_vec
+        return {
+            "max": max_vec,
+            "min": min_vec,
+            "mean": mean_vec
+        }

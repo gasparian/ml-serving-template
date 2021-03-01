@@ -67,15 +67,6 @@ Output:
 }
 ```  
 
-#### TO DO  
-   - **move large fasttext model to the seprate service, to be able to scale the app and hold a high load**;  
-   - add ability to clusterize based on passed clusters names;  
-   - add load tests via `locust`;  
-   - rewrite readme after making the above changes;  
-   - make lightweight docker image;  
-   - rewrite tests with mocking;  
-   - use [falcon](https://falcon.readthedocs.io/en/stable/) and [bjoern](https://github.com/jonashaag/bjoern). See the [example](https://alexpnt.github.io/2018/01/06/fast-inference-falcon-bjoern/)  
-
 #### Useful links:  
    - [fasttext models](https://fasttext.cc/docs/en/crawl-vectors.html) pretrained on the "common-crawl" dataset;  
    - [great article by Google engineer on how he made news-aggregator](https://danlark.org/2020/07/31/news-aggregator-from-scratch-in-2-weeks/)  
