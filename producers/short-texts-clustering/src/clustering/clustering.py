@@ -16,7 +16,7 @@ from .preprocessing import Preprocessor
 
 from .local_types import *
 
-# TO DO: send text to the fasttext inference server in batches!
+# TODO: send text to the fasttext inference server in batches!
 class ClusteringPipeline:
 
     def __init__(self, stop_words: Optional[List[str]] = None, min_cluster_size: int = 2):
@@ -134,7 +134,8 @@ def join_new_line(tokens: List[str]) -> str:
     return "\n".join(tokens)
 
 def get_compound_title(buckets: ClusterNgrams, min_title_len: int = 4) -> str:
-    title, total_title_len = [], 0
+    title: List[str] = []
+    total_title_len = 0
     for bucket in buckets.keys():
         sorted_ngrams = sorted(buckets[bucket].items(), key=lambda v: v[1], reverse=True)[:2]
         for ngram in sorted_ngrams:

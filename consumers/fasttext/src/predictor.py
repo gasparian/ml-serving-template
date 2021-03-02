@@ -39,7 +39,7 @@ class Predictor(PredictorBase):
 	    }
 
 # NOTE: only for tests without feature extraction service
-class FasttextPredictorMock(PredictorBase):
+class PredictorMock(PredictorBase):
     """
     Needed for tests only.
     It gets the first word, computes the hash

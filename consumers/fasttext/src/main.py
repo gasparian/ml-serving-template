@@ -2,7 +2,7 @@ import os
 
 from ml_serving_common import Config
 from ml_serving_common.message_processing import run_serving_message_processor
-# TO DO: replace with real class after tests
+# TODO: replace with real class after tests
 from predictor import PredictorMock as Predictor
 # from predictor import Predictor
 

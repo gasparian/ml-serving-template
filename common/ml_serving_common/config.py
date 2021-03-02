@@ -20,7 +20,8 @@ class Config(object):
         "queue_name": str,
         "exchange_type": str,
         "exchange_name": str,
-        "rabbit_ttl": str
+        "rabbit_ttl": str,
+        "cache_pooling_timeout": float
     }
 
     def __init__(self, **kwargs):

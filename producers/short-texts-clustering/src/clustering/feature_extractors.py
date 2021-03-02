@@ -49,7 +49,7 @@ class TfidfExtractor(TextFeaturesExtractor):
     def get_features(self, inp: Union[List[str], np.ndarray]) -> np.ndarray:
         return self.model.fit_transform(inp).toarray()
 
-# TO DO: rewrite method to get the features from other service
+# TODO: rewrite method to get the features from other service
 class FasttextExtractor(TextFeaturesExtractor):
     def __init__(self, preprocessor: Callable[[str], str], center_data: bool = False):
         super().__init__(preprocessor)

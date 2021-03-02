@@ -16,6 +16,9 @@ class RedisWrapper(object):
     def __getitem__(self, key: str) -> Any:
         return self.__cache.get(key)
 
+    def get_pubsub(self):
+        return self.__cache.pubsub()
+
 class RabbitWrapper(object):
     def __init__(self, config: Config):
         self.__connection = pika.BlockingConnection(

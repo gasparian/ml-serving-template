@@ -32,6 +32,7 @@ services:
     command:
       - redis-server
       - --save ''
+      - --notify-keyspace-events Ks
       - --maxmemory-policy volatile-ttl
       - --maxmemory 512mb
     cpus: '2'
