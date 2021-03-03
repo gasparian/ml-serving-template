@@ -1,12 +1,12 @@
 import abc
 import os
-from typing import Union, Callable, List
+from typing import Union, Callable, List, Any
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
+from ml_serving_common import ServingClient
 
-from .models import FasttextPredictorMock as FasttextPredictor
-# from .models import FasttextPredictor
+from .config import ClusteringConfig
 
 class TextFeaturesExtractor(abc.ABC):
     def __init__(self, preprocessor: Callable[[str], str]):
@@ -21,7 +21,7 @@ class TextFeaturesExtractor(abc.ABC):
         return np.array(list(map(lambda text: self.__preprocess_text(text), inp)), dtype=str)
 
     @abc.abstractmethod
-    def get_features(self, inp: Union[List[str], np.ndarray]) -> np.ndarray:
+    def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
         pass
     
 class TfidfExtractor(TextFeaturesExtractor):
@@ -49,18 +49,10 @@ class TfidfExtractor(TextFeaturesExtractor):
     def get_features(self, inp: Union[List[str], np.ndarray]) -> np.ndarray:
         return self.model.fit_transform(inp).toarray()
 
-# TODO: rewrite method to get the features from other service
 class FasttextExtractor(TextFeaturesExtractor):
-    def __init__(self, preprocessor: Callable[[str], str], center_data: bool = False):
+    def __init__(self, preprocessor: Callable[[str], str], config: ClusteringConfig):
         super().__init__(preprocessor)
-        self.model = FasttextPredictor()
-        self.__center_data = center_data 
+        self.__model = ServingClient(config)
 
-    def get_features(self, inp: Union[List[str], np.ndarray]) -> np.ndarray:
-        vecs = np.empty((len(inp), 900))
-        for i, text in enumerate(inp):
-            vecs[i] = np.concatenate(list(self.model.get_features(text).values()))
-        if self.__center_data:
-            return vecs - vecs.mean(axis=0)
-        else:
-            return vecs
+    def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
+        return self.__model.run_prediction(inp)

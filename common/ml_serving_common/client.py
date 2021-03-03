@@ -12,7 +12,7 @@ class ServingClient(object):
         self.__timeout = int(round(float(config.rabbit_ttl)/1000))
         self.__cache = RedisWrapper(config)
         self.__cache_pubsub = self.__cache.get_pubsub()
-        self.__cache_pubsub.psubscribe('__keyspace@0__:*')
+        self.__cache_pubsub.psubscribe('__keyspace@*')
         self.__rabbit = RabbitWrapper(config)
         self.__rabbit.declare_queue()
 
@@ -34,6 +34,7 @@ class ServingClient(object):
                 msg_key = self.__get_key_from_event(message)
                 if msg_key and (msg_key == key):
                     item = self.__cache[key]
+                    self.__cache.delete(key)
                     break
             time.sleep(self.__pause)
         return item

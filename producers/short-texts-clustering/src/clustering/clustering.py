@@ -15,27 +15,30 @@ from .models import NaiveLangDetector
 from .preprocessing import Preprocessor
 
 from .local_types import *
+from .config import ClusteringConfig
 
-# TODO: send text to the fasttext inference server in batches!
 class ClusteringPipeline:
 
-    def __init__(self, stop_words: Optional[List[str]] = None, min_cluster_size: int = 2):
+    def __init__(self, config: ClusteringConfig, stop_words: Optional[List[str]] = None):
         self.__lang_detector = NaiveLangDetector()
         self.__outliers_class_name = "none"
         self.__preprocessor = Preprocessor(stop_words=stop_words, placeholder=self.__outliers_class_name)
         self.__fasttext_extractor = FasttextExtractor(
             partial(self.__preprocessor.run, replace_dates=False, replace_digits=False),
-            center_data=False # True for the real fasttext model
+            config
         )
         self.__tfidf_extractor = TfidfExtractor(
             partial(self.__preprocessor.run, replace_dates=True, replace_digits=True)
         )
         self.__valid_extractors_names = set(["fasttext", "tfidf"])
-        self.__min_cluster_size = min_cluster_size
+        self.__min_cluster_size = config.min_cluster_size
+        self.__center_data = config.center_fasttext_vectors
 
     def __get_merged_clusters_map(self, titles: Titles, cosine_thrsh: float = 0.45) -> ClustersMerge:
         seen = set([-1])
         clusters_map: Dict[int, Set[int]] = {-1:set()}
+        titles_features = self.__fasttext_extractor.get_features(list(titles.values()))
+        titles_features_dict = {k:v["mean"] for k, v in zip(list(titles.keys()), titles_features)}
         for k1, v1 in titles.items():
             if k1 in seen:
                 continue
@@ -44,8 +47,8 @@ class ClusteringPipeline:
                 if k2 in seen:
                     continue
                 dist = distance.cosine(
-                    self.__fasttext_extractor.model.get_features(v1)["mean"], 
-                    self.__fasttext_extractor.model.get_features(v2)["mean"]
+                    titles_features_dict[k1],
+                    titles_features_dict[k2]
                 )
                 if dist <= cosine_thrsh:
                     clusters_map[k1].add(k2)
@@ -67,7 +70,12 @@ class ClusteringPipeline:
 
         if features_type == "fasttext":
             prep = self.__fasttext_extractor.preprocess_texts(inp)
-            features = self.__fasttext_extractor.get_features(prep)
+            features = np.concatenate([
+                np.concatenate(list(vecs.values()))[np.newaxis, :]
+                for vecs in self.__fasttext_extractor.get_features(prep)
+            ], axis=0)
+            if self.__center_data:
+                features = features - features.mean(axis=0)
         elif features_type == "tfidf":
             prep = self.__tfidf_extractor.preprocess_texts(inp)
             features = self.__tfidf_extractor.get_features(prep)

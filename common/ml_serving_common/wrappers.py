@@ -19,6 +19,9 @@ class RedisWrapper(object):
     def get_pubsub(self):
         return self.__cache.pubsub()
 
+    def delete(self, key: str):
+        self.__cache.unlink(key) 
+
 class RabbitWrapper(object):
     def __init__(self, config: Config):
         self.__connection = pika.BlockingConnection(
@@ -42,6 +45,8 @@ class RabbitWrapper(object):
             )
         self.__channel.queue_declare(queue=self.__queue_name, durable=True)
     
+    # TODO: get rid of error missed heartbeats from client, timeout: 60s
+    # https://github.com/pika/pika/issues/1104
     def consume(self, callback: Callable) -> None:
         self.__channel.basic_qos(prefetch_count=self.__prefetch)
         self.__channel.basic_consume(queue=self.__queue_name, on_message_callback=callback)

@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Any
+from typing import Union, List, Dict, Any
 
 import ujson
 import fasttext # type: ignore
@@ -14,8 +14,8 @@ class Predictor(PredictorBase):
         self.__model = fasttext.load_model(path)
         self.__regex = re.compile("\W+")
 
-    def predict(self, data: str):
-        splitted = set(self.__regex.split(data))
+    def __predict_single(self, text: str):
+        splitted = set(self.__regex.split(text))
         mean_vec, min_vec, max_vec = np.zeros(300), np.zeros(300), np.zeros(300)
 
         max_vec_norm = -np.inf
@@ -38,6 +38,14 @@ class Predictor(PredictorBase):
             "mean": mean_vec.tolist()
 	    }
 
+    def predict(self, data: Union[str, List[str], np.ndarray]):
+        if isinstance(data, str):
+            data = [data]
+        result: List[Any] = []
+        for text in data:
+            result.append(self.__predict_single(text))
+        return result
+
 # NOTE: only for tests without feature extraction service
 class PredictorMock(PredictorBase):
     """
@@ -45,7 +53,7 @@ class PredictorMock(PredictorBase):
     It gets the first word, computes the hash
     and populates the whole vector with it
     """
-    def __init__(self, path: str):
+    def __init__(self):
         self.__model = lambda w: self.__get_word_vec(w)
         self.__regex = re.compile("[^0-9a-zA-Z]+")
 
@@ -56,8 +64,8 @@ class PredictorMock(PredictorBase):
             d[idx] += 1
         return d
 
-    def predict(self, data: str):
-        splitted = list(self.__regex.sub("", data))
+    def __predict_single(self, text: str):
+        splitted = list(self.__regex.sub("", text))
         mean_vec = np.zeros(300)
         for w in splitted:
             mean_vec[:] = self.__model(w.lower().encode("utf-8"))
@@ -68,3 +76,11 @@ class PredictorMock(PredictorBase):
             "min": min_vec,
             "mean": mean_vec
         }
+
+    def predict(self, data: Union[str, List[str], np.ndarray]):
+        if isinstance(data, str):
+            data = [data]
+        result: List[Any] = []
+        for text in data:
+            result.append(self.__predict_single(text))
+        return result

@@ -10,7 +10,7 @@ import numpy as np
 import falcon
 import ujson
 
-from clustering import ClusteringPipeline
+from clustering import ClusteringPipeline, ClusteringConfig
 
 class Status(object):
     def on_get(self, req, resp):
@@ -22,9 +22,9 @@ Labels = Union[Dict[str, str], Dict[str, List[str]]]
 ClusteringAnswer = Dict[str, Labels]
 
 class ClusteringPipelineHandler(ClusteringPipeline):
-    def __init__(self):
+    def __init__(self, config: ClusteringConfig):
         stops_en = stopwords.words('english')
-        super().__init__(stops_en)
+        super().__init__(config, stops_en)
 
     def get_clusters_handler(self, inp: ClientInput, mode: str = "tfidf") -> ClusteringAnswer:
         texts: List[str] = [w for w in inp.values()]
