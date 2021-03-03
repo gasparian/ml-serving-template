@@ -19,6 +19,8 @@ class ServingClient(object):
     def __get_key_from_event(self, msg) -> str:
         if msg["type"] != "pmessage":
             return ""
+        if msg["data"].decode() != "expire":
+            return ""
         return msg["channel"].decode().split(":")[-1]
 
     def __get_answer(self, key: str) -> bytes:
