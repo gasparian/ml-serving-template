@@ -3,7 +3,7 @@ Serving large ml models independently via message queue for communication with o
 
 <p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo3.jpg" height=320/> </p>  
 
-*TO DO*  
+*TODO*  
 
 ### Reference  
 
@@ -26,7 +26,10 @@ Example producer:
 Example consumer:  
  - [fasttext inference](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext)  
 
-### TO DO  
+### API Refernce  
+*TODO*
+
+### TODO  
  - update all readme's;  
  - github actions badges! (build / test);  
  - add ability to clusterize based on passed clusters names;  
