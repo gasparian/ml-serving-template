@@ -26,11 +26,10 @@ Example producer:
 Example consumer:  
  - [fasttext inference](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext)  
 
-### API Refernce  
+### API  
 *TODO*
 
 ### TODO  
  - update all readme's;  
- - github actions badges! (build / test);  
  - add ability to clusterize based on passed clusters names;  
  - add load tests via `locust` to the clusterizer;  
