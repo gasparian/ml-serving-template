@@ -47,7 +47,7 @@ class PredictorMock(PredictorBase):
     """
     def __init__(self, path: str):
         self.__model = lambda w: self.__get_word_vec(w)
-        self.__regex = re.compile("\W+")
+        self.__regex = re.compile("[^0-9a-zA-Z]+")
 
     def __get_word_vec(self, word: str):
         d = np.zeros(300)
@@ -57,7 +57,7 @@ class PredictorMock(PredictorBase):
         return d
 
     def predict(self, data: str):
-        splitted = list(self.__regex.split(data))
+        splitted = list(self.__regex.sub("", data))
         mean_vec = np.zeros(300)
         for w in splitted:
             mean_vec[:] = self.__model(w.lower().encode("utf-8"))
