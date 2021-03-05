@@ -11,11 +11,32 @@ from scipy.spatial.distance import pdist # type: ignore
 from scipy.spatial import distance # type: ignore
 
 from .feature_extractors import FasttextExtractor, TfidfExtractor
-from .models import NaiveLangDetector
 from .preprocessing import Preprocessor
 
 from .local_types import *
 from .config import ClusteringConfig
+
+class NaiveLangDetector:
+
+    def __init__(self):
+        self.__latin_letters = set(u"qwertyuiopasdfghjklzxcvbnm")
+        self.__digits = set(u"1234567890")
+
+    def get_lang(self, text: str) -> str:
+        letters = list(text.lower().strip())
+        d = {"latin":0, "digits":0, "other":0}
+        for letter in letters:
+            if letter in self.__latin_letters:
+                d["latin"] += 1
+            elif letter in self.__digits: 
+                d["digits"] += 1
+            else: 
+                d["other"] += 1
+        if d["digits"] < len(letters):
+            d["digits"] = 0
+        else:
+            return "latin"
+        return sorted(d.items(), key=lambda v: v[1], reverse=True)[0][0]
 
 class ClusteringPipeline:
 

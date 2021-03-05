@@ -9,6 +9,8 @@ logging.basicConfig(
     stream=sys.stdout
 )
 
+# TODO: Allow to use several RabbitMQ nodes instead just one
+# https://pika.readthedocs.io/en/stable/examples/blocking_consume_recover_multiple_hosts.html
 class Config(object):
     __allowed = {
         "redis_ttl": int,
@@ -21,7 +23,9 @@ class Config(object):
         "exchange_type": str,
         "exchange_name": str,
         "rabbit_ttl": str,
-        "cache_pooling_timeout": float
+        "cache_pooling_timeout": float,
+        "rabbit_heartbeat_timeout": int,
+        "rabbit_blocked_connection_timeout": int
     }
 
     def __init__(self, **kwargs):

@@ -40,6 +40,7 @@ class ServingClient(object):
         return item
             
     def run_prediction(self, data: Any) -> Any:
+        self.__rabbit.declare_queue()
         key = str(uuid.uuid4())
         self.__rabbit.produce(key, pickle.dumps(data))
         answer = self.__get_answer(key)
@@ -48,4 +49,4 @@ class ServingClient(object):
         return None
 
     def close(self):
-        self.__rabbit.close()
+        self.__rabbit.close_connection()
