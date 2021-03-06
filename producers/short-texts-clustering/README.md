@@ -70,3 +70,7 @@ Output:
 #### Useful links:  
    - [fasttext models](https://fasttext.cc/docs/en/crawl-vectors.html) pretrained on the "common-crawl" dataset;  
    - [great article by Google engineer on how he made news-aggregator](https://danlark.org/2020/07/31/news-aggregator-from-scratch-in-2-weeks/)  
+
+### TODO  
+ - add ability to clusterize based on passed clusters names;  
+ - add load tests via `locust` to the clusterizer;  

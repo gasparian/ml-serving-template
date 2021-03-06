@@ -28,8 +28,3 @@ Example consumer:
 
 ### API  
 *TODO*
-
-### TODO  
- - update all readme's;  
- - add ability to clusterize based on passed clusters names;  
- - add load tests via `locust` to the clusterizer;  
