@@ -13,8 +13,6 @@ services:
     restart: unless-stopped 
     ports:
       - "5000:5000"
-    volumes:
-      - "/samsung_drive/fasttext:/fasttext"
     env_file:
       - "../../common/variables.env"
       - "variables.env"

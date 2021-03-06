@@ -14,3 +14,4 @@ __pycache__
 **/*.env
 **/*.mypy*
 **/Dockerfile
+**/models
