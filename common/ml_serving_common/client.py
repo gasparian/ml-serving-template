@@ -1,7 +1,7 @@
 import time
 import uuid
 import pickle
-from typing import Any
+from typing import Any, Optional
 
 from .config import Config
 from .wrappers import RedisWrapper, RabbitWrapper
@@ -23,7 +23,7 @@ class ServingClient(object):
             return ""
         return msg["channel"].decode().split(":")[-1]
 
-    def __get_answer(self, key: str) -> bytes:
+    def __get_answer(self, key: str) -> Optional[bytes]:
         total_time = 0.0
         item = None
         time.sleep(self.__pause)

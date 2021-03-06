@@ -1,6 +1,8 @@
 import os
+import re
 import sys
 import logging
+from typing import List, Dict, Union
 
 logging.basicConfig(
     level=logging.INFO,
@@ -9,16 +11,10 @@ logging.basicConfig(
     stream=sys.stdout
 )
 
-# TODO: Allow to use several RabbitMQ nodes instead just one
-# https://pika.readthedocs.io/en/stable/examples/blocking_consume_recover_multiple_hosts.html
 class Config(object):
     __allowed = {
         "redis_ttl": int,
         "prefetch_count": int,
-        "redis_host": str,
-        "redis_port": int,
-        "rabbit_host": str, 
-        "rabbit_port": int,
         "queue_name": str,
         "exchange_type": str,
         "exchange_name": str,
@@ -29,9 +25,26 @@ class Config(object):
     }
 
     def __init__(self, **kwargs):
+        self.__regex_colon = re.compile(":[0-9]")
         self.logger = logging.getLogger()
+        self.redis_nodes = self.__parse_hosts(os.environ["REDIS_NODES"])
+        self.rabbit_nodes = self.__parse_hosts(os.environ["RABBIT_NODES"])
         for arg, dtype in self.__allowed.items():
             if arg in kwargs:
                 setattr(self, arg, dtype(kwargs[arg]))
             else:
                 setattr(self, arg, dtype(os.environ[arg.upper()]))
+
+    def __parse_hosts(self, inp: str) -> List[Dict[str, str]]:
+        splitted = inp[1:-1].strip().split()
+        if not len(splitted):
+            raise ValueError("Hosts parsing error: empty")
+        out = []
+        for s in splitted:
+            colon_idx = self.__regex_colon.search(s).span()[0]
+            host, port = s[:colon_idx], s[colon_idx+1:]
+            out.append({
+                "host": host,
+                "port": port
+            })
+        return out

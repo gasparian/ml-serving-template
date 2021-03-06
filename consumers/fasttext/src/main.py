@@ -7,7 +7,7 @@ config = FasttextConfig()
 try:
     predictor = Predictor(config.model_path)
 except:
+    config.logger.warning("Could not find fasttext model. Using fasttext mock instead")
     predictor = PredictorMock()
-    config.logger.info("Using fasttext mock")
 
 run_serving_message_processor(config, predictor)

@@ -26,8 +26,6 @@ class ServingMessageProcessor(object):
             self.__mutex.release()
     
     def run(self) -> None:
-        self.__queue.declare_queue()
-        self.__logger.info(' [*] Waiting for messages. To exit press CTRL+C')
         self.__queue.consume(self.__callback)
 
 def run_serving_message_processor(config: Config, predictor: PredictorBase) -> None:
