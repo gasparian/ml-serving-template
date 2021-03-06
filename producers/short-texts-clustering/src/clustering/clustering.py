@@ -105,12 +105,11 @@ class ClusteringPipeline:
         dist[np.isnan(dist)] = 1
         labels = get_clusters_by_dist_matrix(dist, self.__min_cluster_size)
         labels = filter_rare_labels(labels, self.__min_cluster_size)
+        labels[fault_lang_mask] = -1
         titles = get_clusters_titles(labels, prep)
         clusters_map = self.__get_merged_clusters_map(titles)
         titles = merge_clusters_titles(titles, clusters_map)
         labels = merge_clusters_labels(labels, clusters_map)
-        
-        labels[fault_lang_mask] = -1
         labels = filter_rare_labels(labels, self.__min_cluster_size)
         return titles, labels
 

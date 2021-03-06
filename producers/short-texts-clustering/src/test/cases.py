@@ -18,7 +18,7 @@ TEST_CASE_POS: ClientInput = {
     "j": "take",
     "k": "take",
     "l": "take",
-    "m": "gym"
+    "m": "слово"
 }
 
 ANSWER_POS: ClusteringAnswer = {

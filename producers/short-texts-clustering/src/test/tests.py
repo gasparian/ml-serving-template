@@ -15,7 +15,7 @@ def labels_check(inp: Labels, gt: Labels) -> bool:
         found = False
         for v_inp in inp.values():
             intersect_len = len(set(v_gt).intersection(set(v_inp)))
-            if intersect_len == len(v_gt):
+            if intersect_len == len(v_gt) == len(v_inp):
                 found = True
                 break
         if not found:

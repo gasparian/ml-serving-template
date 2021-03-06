@@ -4,10 +4,16 @@ from ml_serving_common.message_processing import run_serving_message_processor
 from config import FasttextConfig
 from predictor import PredictorMock, Predictor
 config = FasttextConfig()
-try:
-    predictor = Predictor(config.model_path)
-except:
-    config.logger.warning("Could not find fasttext model. Using fasttext mock instead")
+use_mock = int(os.environ["USE_MOCK"])
+if use_mock:
+    config.logger.info("Using fasttext mock")
     predictor = PredictorMock()
+else:
+    try:
+        predictor = Predictor(config.model_path)
+        config.logger.info("Using fasttext model")
+    except:
+        config.logger.warning("Could not find fasttext model. Using fasttext mock instead")
+        predictor = PredictorMock()
 
 run_serving_message_processor(config, predictor)
