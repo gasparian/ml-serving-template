@@ -1,5 +1,5 @@
 # ml-serving-template  
-Serving large ml models independently via message queue and kv-storage for communication with multiple services.  
+Serving large ml models independently and asynchronously via message queue and kv-storage for communication with multiple services.  
 
 <p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo3.jpg" height=320/> </p>  
 
@@ -7,7 +7,7 @@ I think many of us are used to place trained ML models for inference right insid
 And you can keep doing that, when your models are small enough (like simple image classifiers/detectors) and/or you don't need to query a big amount of data to perform the calculations.  
 **But** the problems start when you're trying to serve really large model, like some modified ResNets or modern [transformers](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)), that can easily take >1..10 Gb of RAM/vRAM.  
 Or you need to perform some heavy map-reduce operation. At this case, it can become too resource-consuming to scale your app coupled with such complex stuff.  
-So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps via **RPC**.  
+So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps asynchronously via **RPC**.  
 **Which gives you at least one important thing: you'll be able to independently scale client services, inference services, message bus and cache.**  
 This repo is a template that you can look at and use some ideas or implementation details in your projects.  
 
