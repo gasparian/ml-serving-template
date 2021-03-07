@@ -3,12 +3,13 @@ Serving large ml models independently via message queue and kv-storage for commu
 
 <p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo3.jpg" height=320/> </p>  
 
-I think many of us are used to place trained ML models for inference right inside the web app with the rest of the logic. Usually, you load it once, when the app is started, and run smth like predict inside API handler functions.  
+I think many of us are used to place trained ML models for inference right inside the web app with the rest of the logic. Usually, you load the model once, when the app is started, and then run smth like `predict` method from the API handlers.  
 And you can keep doing that, when your models are small enough (like simple image classifiers/detectors) and/or you don't need to query a big amount of data to perform the calculations.  
-**But** the problems start when you're trying to serve some really large model, like some modified ResNets or modern [transformers](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)), that can easily take >1..10 Gb of RAM/vRAM. Or you need to perform some heavy map-reduce operation. And at this case, it can become too resource-consuming to scale your app coupled with such complex stuff.  
-So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps via RPC.  
+**But** the problems start when you're trying to serve really large model, like some modified ResNets or modern [transformers](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)), that can easily take >1..10 Gb of RAM/vRAM.  
+Or you need to perform some heavy map-reduce operation. At this case, it can become too resource-consuming to scale your app coupled with such complex stuff.  
+So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps via **RPC**.  
 **Which gives you at least one important thing: you'll be able to independently scale client services, inference services, message bus and cache.**  
-Here is a template that you can look at and use some ideas or implementation details in your projects.  
+This repo is a template that you can look at and use some ideas or implementation details in your projects.  
 
 ### Reference  
 
