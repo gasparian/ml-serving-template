@@ -1,6 +1,6 @@
 import os
 
-from ml_serving_common.message_processing import run_serving_message_processor
+from ml_serving.message_processing import run_serving_message_processor
 from config import FasttextConfig
 from predictor import PredictorMock, Predictor
 config = FasttextConfig()

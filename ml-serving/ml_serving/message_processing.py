@@ -7,7 +7,7 @@ from .config import Config # type: ignore
 from .wrappers import RedisWrapper, RabbitWrapper
 from .inference import PredictorBase
 
-class ServingMessageProcessor(object):
+class ServingConsumer(object):
     def __init__(self, config: Config, predictor: PredictorBase):
         self.__logger = config.logger
         self.__predictor = predictor
@@ -29,5 +29,5 @@ class ServingMessageProcessor(object):
         self.__queue.consume(self.__callback)
 
 def run_serving_message_processor(config: Config, predictor: PredictorBase) -> None:
-    proc = ServingMessageProcessor(config, predictor)
+    proc = ServingConsumer(config, predictor)
     proc.run()

@@ -12,8 +12,8 @@ RUN apt-get clean && apt-get update && \
 COPY ./consumers/fasttext/requirements.txt requirements.txt
 RUN python3 -m pip --no-cache-dir install -r requirements.txt
 
-COPY ./common ./common
-WORKDIR /common
+COPY ./ml-serving ./ml-serving
+WORKDIR /ml-serving
 RUN python3 -m pip --no-cache-dir install .
 WORKDIR /
 

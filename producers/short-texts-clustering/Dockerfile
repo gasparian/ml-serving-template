@@ -24,8 +24,8 @@ RUN python3 -m nltk.downloader stopwords
 RUN python3 -m pip --no-cache-dir install \
     -v --no-binary :all: falcon==2.0.0
 
-COPY ./common ./common
-WORKDIR /common
+COPY ./ml-serving ./ml-serving
+WORKDIR /ml-serving
 RUN python3 -m pip --no-cache-dir install .
 WORKDIR /
 

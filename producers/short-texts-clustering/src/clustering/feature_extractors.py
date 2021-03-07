@@ -4,7 +4,7 @@ from typing import Union, Callable, List, Any
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
-from ml_serving_common import ServingClient
+from ml_serving import ServingClient
 
 from .config import ClusteringConfig
 

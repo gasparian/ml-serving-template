@@ -16,7 +16,7 @@ services:
     volumes:
       - "/samsung_drive/fasttext:/fasttext"
     env_file:
-      - "../../common/variables.env"
+      - "../../variables.env"
       - "variables.env"
     # stdin_open: true # docker run -i
     # tty: true        # docker run -t

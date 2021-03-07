@@ -14,7 +14,6 @@ class ServingClient(object):
         self.__cache_pubsub = self.__cache.get_pubsub()
         self.__cache_pubsub.psubscribe('__keyspace@*')
         self.__rabbit = RabbitWrapper(config)
-        self.__rabbit.declare_queue()
 
     def __get_key_from_event(self, msg) -> str:
         if msg["type"] != "pmessage":
@@ -40,7 +39,6 @@ class ServingClient(object):
         return item
             
     def run_prediction(self, data: Any) -> Any:
-        self.__rabbit.declare_queue()
         key = str(uuid.uuid4())
         self.__rabbit.produce(key, pickle.dumps(data))
         answer = self.__get_answer(key)

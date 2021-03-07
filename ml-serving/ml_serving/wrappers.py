@@ -60,7 +60,7 @@ class RabbitWrapper(object):
     def __create_channel(self) -> pika.channel:
         return self.__connection.channel()
     
-    def declare_queue(self):
+    def __declare_queue(self):
         try:
             self.__connection.process_data_events()
         except:
@@ -95,7 +95,7 @@ class RabbitWrapper(object):
     def consume(self, callback: Callable) -> None:
         while True:
             try:
-                self.declare_queue()
+                self.__declare_queue()
                 try:
                     self.__logger.info(' [*] Start consuming... Waiting for messages. To exit press CTRL+C')
                     self.__start_consuming(callback)
@@ -114,6 +114,7 @@ class RabbitWrapper(object):
                 continue 
 
     def produce(self, key: str, value: bytes) -> None:
+        self.__declare_queue()
         self.__channel.basic_publish(
             exchange=self.__exchange_name,
             routing_key=self.__queue_name,
@@ -122,7 +123,8 @@ class RabbitWrapper(object):
                 delivery_mode=2,  # make message persistent
                 expiration=self.__rabbit_ttl,
                 headers={"X-Message-Id": key}
-            ))
+            )
+        )
 
     def close_channel(self) -> None:
         self.__channel.close()

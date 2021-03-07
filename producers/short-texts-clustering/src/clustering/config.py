@@ -1,5 +1,5 @@
 import os
-from ml_serving_common import Config as ServingConfig
+from ml_serving import Config as ServingConfig
 
 class ClusteringConfig(ServingConfig):
     __allowed = {
