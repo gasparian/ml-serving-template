@@ -19,10 +19,10 @@ Key points:
  - producer service only needs to implement a [predictor class](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/inference.py) and just pass it to the [runner](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/message_processing.py) on it's side. So basically, you don't need to think about communication internals;  
  - uses `*.env` files to hold configuration parameters: [main config](https://github.com/gasparian/ml-serving-template/blob/main/variables.env) and [services configs](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext/variables.env);  
 
-It's actually better to look and the code by yourself:  
- - check out the [module](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml-serving) with all the helpers;  
+It's actually better to look at code by yourself:  
+ - check out the [module](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml-serving) with all helpers;  
  - example producer - [short-texts-clustering service](https://github.com/gasparian/ml-serving-template/blob/main/producers/short-texts-clustering);  
- - example consumer - [fasttext inference](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext);  
+ - example consumer - [fasttext inference service](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext);  
 
 Installing module with helpers locally:  
 ```
