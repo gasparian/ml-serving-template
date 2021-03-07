@@ -33,7 +33,7 @@ python3.8 -m pip install .
 ```  
 Here are small code snippets from the examples above:  
 On the **consumer** side, you just need to start listening for messages in the queue and apply your custom function to each incoming message. All that you need is to define configuration params and implement the prediction pipeline, using desired models:  
-```
+```python
 from ml_serving.message_processing import start_consume_messages
 
 from config import FasttextConfig
@@ -45,7 +45,7 @@ start_consume_messages(config, predictor) # <-- blocking
 ```  
 
 On the **producer** side, you just need to replace the usual model initialization and prediction code with the serving client and RPC:  
-```
+```python
 ...
 from ml_serving import ServingClient
 
