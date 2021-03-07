@@ -25,9 +25,9 @@ class ServingConsumer(object):
         finally:
             self.__mutex.release()
     
-    def run(self) -> None:
+    def consume(self) -> None:
         self.__queue.consume(self.__callback)
 
-def run_serving_message_processor(config: Config, predictor: PredictorBase) -> None:
+def start_consume_messages(config: Config, predictor: PredictorBase) -> None:
     proc = ServingConsumer(config, predictor)
-    proc.run()
+    proc.consume()
