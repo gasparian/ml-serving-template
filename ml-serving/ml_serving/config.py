@@ -21,7 +21,7 @@ class Config(object):
         "rabbit_ttl": str,
         "cache_pooling_timeout": float,
         "rabbit_heartbeat_timeout": int,
-        "rabbit_blocked_connection_timeout": int
+        "rabbit_blocked_connection_timeout": int,
     }
 
     def __init__(self, **kwargs):

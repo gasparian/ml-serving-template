@@ -1,6 +1,6 @@
 import os
 
-from ml_serving.message_processing import start_consume_messages
+from ml_serving.server import ServingRPCConsumer
 from config import FasttextConfig
 from predictor import PredictorMock, Predictor
 config = FasttextConfig()
@@ -16,4 +16,5 @@ else:
         config.logger.warning("Could not find fasttext model. Using fasttext mock instead")
         predictor = PredictorMock()
 
-start_consume_messages(config, predictor)
+proc = ServingRPCConsumer(config, predictor)
+proc.consume()

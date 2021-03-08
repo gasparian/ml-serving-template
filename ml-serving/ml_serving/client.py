@@ -4,7 +4,7 @@ import pickle
 from typing import Any, Optional
 
 from .config import Config
-from .wrappers import RedisWrapper, RabbitWrapper
+from .wrappers import RedisWrapper, RabbitWrapper, RabbitRPCClient
 
 class ServingClient(object):
     def __init__(self, config: Config):
@@ -13,7 +13,7 @@ class ServingClient(object):
         self.__cache = RedisWrapper(config)
         self.__cache_pubsub = self.__cache.get_pubsub()
         self.__cache_pubsub.psubscribe('__keyspace@*')
-        self.__rabbit = RabbitWrapper(config)
+        self.rabbit = RabbitWrapper(config)
 
     def __get_key_from_event(self, msg) -> str:
         if msg["type"] != "pmessage":
@@ -22,34 +22,27 @@ class ServingClient(object):
             return ""
         return msg["channel"].decode().split(":")[-1]
 
-    def run_prediction(self, data: Any) -> str:
-        key = str(uuid.uuid4())
-        self.__rabbit.produce(key, pickle.dumps(data))
-        return key
-
-    # TODO: rewrite with rabbit
-    def wait_answer(self, key: str) -> Any:
-        total_time = 0.0
-        value = None
-        time.sleep(self.__pause)
-        while total_time < self.__timeout:
-            total_time += self.__pause
-            message = self.__cache_pubsub.get_message()
-            if message:
-                msg_key = self.__get_key_from_event(message)
-                if msg_key and (msg_key == key):
-                    value = self.__cache.withdraw(key)
-                    break
-            time.sleep(self.__pause)
-        if value:
-            return pickle.loads(value)
-        return value
-
     def get_answer(self, key: str) -> Any:
         value = self.__cache.withdraw(key)
         if value:
             return pickle.loads(value)
         return value
 
-    def close(self):
-        self.__rabbit.close_connection()
+    def run_prediction(self, data: Any) -> str:
+        key = str(uuid.uuid4())
+        self.rabbit.produce(key, pickle.dumps(data))
+        return key
+
+    def close(self) -> None:
+        self.rabbit.close_connection()
+
+class ServingRPCClient(ServingClient):
+    def __init__(self, config: Config):
+       self.rabbit = RabbitRPCClient(config)
+
+    def get_answer(self, key: str = "") -> Any:
+        value = self.rabbit.wait_answer()
+        if value:
+            return pickle.loads(value)
+        return value
+ 

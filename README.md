@@ -16,7 +16,7 @@ Key points:
  - uses [rabbitmq](https://www.rabbitmq.com/) for sending queries from client apps (producers) to the inference services (consumers);  
  - uses [redis](https://redis.io/) for temporarily storing inference results so the producers can grab them. Here the client subscribes to the redis keyspace events and wait until the desired key has been created;  
  - uses `pickle` for serialization;  
- - producer service only needs to implement a [predictor class](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/inference.py) and just pass it to the [runner](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/message_processing.py) on it's side. So basically, you don't need to think about communication internals. See the **[library](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving)** to get more context;  
+ - producer service only needs to implement a [predictor class](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/inference.py) and just pass it to the [runner](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) on it's side. So basically, you don't need to think about communication internals. See the **[library](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving)** to get more context;  
  - uses `*.env` files to hold all needed configuration parameters: [main config](https://github.com/gasparian/ml-serving-template/blob/main/variables.env) and [services configs](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext/variables.env);  
 
 And it's always better to look at example code by yourself:  
@@ -62,20 +62,21 @@ class Predictor(PredictorBase):
 ```  
 And then start listening for messages in the queue. All that you need is to define configuration params and apply here the prediction pipeline that you've defined before:  
 ```python
-from ml_serving.message_processing import start_consume_messages
+from ml_serving.server import ServingRPCConsumer
 
 from config import FasttextConfig
 from predictor import Predictor
 
 config = FasttextConfig()
 predictor = Predictor(config.model_path)
-start_consume_messages(config, predictor) # <-- blocking
+proc = ServingRPCConsumer(config, predictor) 
+proc.consume() # <-- blocking
 ```  
 
 On the **producer** side, you just need to replace the usual model initialization and prediction code with the serving client and RPC:  
 ```python
 ...
-from ml_serving import ServingClient
+from ml_serving.client import ServingClient
 
 from .config import ClusteringConfig
 
@@ -83,12 +84,12 @@ from .config import ClusteringConfig
 class FasttextExtractor(TextFeaturesExtractor):
     def __init__(self, preprocessor: Callable[[str], str], config: ClusteringConfig):
         super().__init__(preprocessor)
-        self.__model = ServingClient(config)
+        self.__model = ServingRPCClient(config)
 
     def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
-        key = self.__model.run_prediction(inp)
-        return self.__model.wait_answer(key)
+        self.__model.run_prediction(inp)
+        return self.__model.get_answer()
 ```  
 
-### Library API  
+### Config and Library reference  
 *TODO*  

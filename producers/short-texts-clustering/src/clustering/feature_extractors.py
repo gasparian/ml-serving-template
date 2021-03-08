@@ -4,7 +4,7 @@ from typing import Union, Callable, List, Any
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
-from ml_serving import ServingClient
+from ml_serving.client import ServingRPCClient
 
 from .config import ClusteringConfig
 
@@ -52,8 +52,8 @@ class TfidfExtractor(TextFeaturesExtractor):
 class FasttextExtractor(TextFeaturesExtractor):
     def __init__(self, preprocessor: Callable[[str], str], config: ClusteringConfig):
         super().__init__(preprocessor)
-        self.__model = ServingClient(config)
+        self.__model = ServingRPCClient(config)
 
     def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
-        key = self.__model.run_prediction(inp)
-        return self.__model.wait_answer(key)
+        self.__model.run_prediction(inp)
+        return self.__model.get_answer()

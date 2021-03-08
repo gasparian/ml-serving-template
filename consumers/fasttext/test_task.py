@@ -5,14 +5,14 @@ import uuid
 import ujson
 
 from ml_serving import Config # type: ignore
-from ml_serving.client import ServingClient
+from ml_serving.client import ServingRPCClient
 
 config = Config()
-client = ServingClient(config)
+client = ServingRPCClient(config)
 
 data = "Hello world"
-key = client.run_prediction(data)
-pred = client.wait_answer(key)
+client.run_prediction(data)
+pred = client.get_answer()
 config.logger.info(pred)
 
 client.close()

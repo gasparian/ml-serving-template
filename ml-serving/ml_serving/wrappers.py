@@ -38,17 +38,17 @@ class RedisWrapper(object):
 
 class RabbitWrapper(object):
     def __init__(self, config: Config):
-        self.__logger = config.logger
+        self.logger = config.logger
         self.__rabbit_nodes = config.rabbit_nodes
-        self.__queue_name = config.queue_name
-        self.__rabbit_ttl = config.rabbit_ttl
-        self.__exchange_name = config.exchange_name
         self.__exchange_type = config.exchange_type
-        self.__prefetch_count = config.prefetch_count
         self.__rabbit_heartbeat_timeout = config.rabbit_heartbeat_timeout
         self.__rabbit_blocked_connection_timeout = config.rabbit_blocked_connection_timeout
-        self.__connection = self.__create_connection()
-        self.__channel = self.__create_channel()
+        self.queue_name = config.queue_name
+        self.rabbit_ttl = config.rabbit_ttl
+        self.exchange_name = config.exchange_name
+        self.prefetch_count = config.prefetch_count
+        self.connection = self.__create_connection()
+        self.channel = self.__create_channel()
 
     def __create_connection(self) -> pika.BlockingConnection:
         random.shuffle(self.__rabbit_nodes)
@@ -63,38 +63,31 @@ class RabbitWrapper(object):
         ])
         
     def __create_channel(self) -> pika.channel:
-        return self.__connection.channel()
+        return self.connection.channel()
     
     def __declare_queue(self):
         try:
-            self.__connection.process_data_events()
+            self.connection.process_data_events()
         except:
-            if self.__connection.is_closed:
-                self.__connection = self.__create_connection()
-            if self.__channel.is_closed:
-                self.__channel = self.__create_channel()
-        if self.__exchange_name:
-            self.__channel.exchange_declare(
-                exchange=self.__exchange_name, 
+            if self.connection.is_closed:
+                self.connection = self.__create_connection()
+            if self.channel.is_closed:
+                self.channel = self.__create_channel()
+        if self.exchange_name:
+            self.channel.exchange_declare(
+                exchange=self.exchange_name, 
                 exchange_type=self.__exchange_type
             )
-        self.__channel.queue_declare(queue=self.__queue_name, durable=True)
+        self.channel.queue_declare(queue=self.queue_name, durable=True)
     
-    # NOTE: on why I used threads here https://github.com/pika/pika/issues/1104
-    def __start_consuming(self, callback: Callable) -> None:
+    def start_consuming(self, callback: Callable) -> None:
         def cb(ch, method, properties, body):
-            t = Thread(target=callback, args=(properties, body,))
-            t.daemon = True
-            t.start()
-
-            while t.is_alive():
-                # self.__connection.process_data_events()
-                self.__connection.sleep(0.1)
+            callback(properties, body)
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
-        self.__channel.basic_qos(prefetch_count=self.__prefetch_count)
-        self.__channel.basic_consume(queue=self.__queue_name, on_message_callback=cb)
-        self.__channel.start_consuming()
+        self.channel.basic_qos(prefetch_count=self.prefetch_count)
+        self.channel.basic_consume(queue=self.queue_name, on_message_callback=cb)
+        self.channel.start_consuming()
 
     # NOTE: https://pika.readthedocs.io/en/stable/examples/blocking_consume_recover_multiple_hosts.html
     def consume(self, callback: Callable) -> None:
@@ -102,37 +95,93 @@ class RabbitWrapper(object):
             try:
                 self.__declare_queue()
                 try:
-                    self.__logger.info(' [*] Start consuming... Waiting for messages. To exit press CTRL+C')
-                    self.__start_consuming(callback)
+                    self.logger.info(' [*] Start consuming... Waiting for messages. To exit press CTRL+C')
+                    self.start_consuming(callback)
                 except KeyboardInterrupt:
-                    self.__logger.info("Stop consuming...")
-                    self.__channel.stop_consuming()
+                    self.logger.info("Stop consuming...")
+                    self.channel.stop_consuming()
                     self.close_connection()
                     break
             except pika.exceptions.ConnectionClosedByBroker:
                 continue
             except pika.exceptions.AMQPChannelError as err:
-                self.__logger.error("Caught a channel error: {}, stopping...".format(err))
+                self.logger.error("Caught a channel error: {}, stopping...".format(err))
                 break
             except pika.exceptions.AMQPConnectionError:
-                self.__logger.error("Connection was closed, retrying...")
+                self.logger.error("Connection was closed, retrying...")
                 continue 
 
     def produce(self, key: str, value: bytes) -> None:
         self.__declare_queue()
-        self.__channel.basic_publish(
-            exchange=self.__exchange_name,
-            routing_key=self.__queue_name,
+        self.channel.basic_publish(
+            exchange=self.exchange_name,
+            routing_key=self.queue_name,
             body=value, # must be bytes
             properties=pika.BasicProperties(
                 delivery_mode=2,  # make message persistent
-                expiration=self.__rabbit_ttl,
-                headers={"X-Message-Id": key}
+                expiration=self.rabbit_ttl,
+                correlation_id=key
             )
         )
 
     def close_channel(self) -> None:
-        self.__channel.close()
+        self.channel.close()
 
     def close_connection(self) -> None:
-        self.__connection.close()
+        self.connection.close()
+
+class RabbitRPCServer(RabbitWrapper):
+    def start_consuming(self, callback: Callable) -> None:
+        def cb(ch, method, properties, body):
+            response = callback(body)
+            ch.basic_publish(
+                exchange='',
+                routing_key=properties.reply_to,
+                properties=pika.BasicProperties(
+                    correlation_id=properties.correlation_id
+                ),
+                body=response
+            )
+            key = properties.correlation_id
+            self.logger.info(f" [x] Message {key} processed!")
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+
+        self.channel.basic_qos(prefetch_count=self.prefetch_count)
+        self.channel.basic_consume(queue=self.queue_name, on_message_callback=cb)
+        self.channel.start_consuming()
+
+# NOTE: https://www.rabbitmq.com/tutorials/tutorial-six-python.html
+class RabbitRPCClient(RabbitWrapper):
+    def __init__(self, config: Config):
+        super().__init__(config)
+        result = self.channel.queue_declare(queue='', exclusive=True)
+        self.__callback_queue = result.method.queue
+
+        self.channel.basic_consume(
+            queue=self.__callback_queue,
+            on_message_callback=self.__on_response,
+            auto_ack=True)
+
+    def __on_response(self, ch, method, props, body):
+        if self.__corr_id == props.correlation_id:
+            self.__response = body
+
+    def produce(self, key: str, value: bytes) -> None:
+        self.__response = None
+        self.__corr_id = key
+        self.channel.basic_publish(
+            exchange=self.exchange_name,
+            routing_key=self.queue_name,
+            properties=pika.BasicProperties(
+                reply_to=self.__callback_queue,
+                expiration=self.rabbit_ttl,
+                correlation_id=self.__corr_id,
+            ),
+            body=value
+        )
+
+    def wait_answer(self) -> bytes:
+        while self.__response is None:
+            self.connection.process_data_events()
+            self.connection.sleep(0.05)
+        return self.__response
