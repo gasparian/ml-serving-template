@@ -65,7 +65,8 @@ class RabbitWrapper(object):
     def __create_channel(self) -> pika.channel:
         return self.connection.channel()
     
-    def __declare_queue(self):
+    def declare_queue(self) -> bool:
+        recreated = False
         try:
             self.connection.process_data_events()
         except:
@@ -73,12 +74,14 @@ class RabbitWrapper(object):
                 self.connection = self.__create_connection()
             if self.channel.is_closed:
                 self.channel = self.__create_channel()
+                recreated = True
         if self.exchange_name:
             self.channel.exchange_declare(
                 exchange=self.exchange_name, 
                 exchange_type=self.__exchange_type
             )
         self.channel.queue_declare(queue=self.queue_name, durable=True)
+        return recreated
     
     def start_consuming(self, callback: Callable) -> None:
         def cb(ch, method, properties, body):
@@ -93,7 +96,7 @@ class RabbitWrapper(object):
     def consume(self, callback: Callable) -> None:
         while True:
             try:
-                self.__declare_queue()
+                self.declare_queue()
                 try:
                     self.logger.info(' [*] Start consuming... Waiting for messages. To exit press CTRL+C')
                     self.start_consuming(callback)
@@ -112,7 +115,7 @@ class RabbitWrapper(object):
                 continue 
 
     def produce(self, key: str, value: bytes) -> None:
-        self.__declare_queue()
+        self.declare_queue()
         self.channel.basic_publish(
             exchange=self.exchange_name,
             routing_key=self.queue_name,
@@ -150,10 +153,13 @@ class RabbitRPCServer(RabbitWrapper):
         self.channel.basic_consume(queue=self.queue_name, on_message_callback=cb)
         self.channel.start_consuming()
 
-# NOTE: https://www.rabbitmq.com/tutorials/tutorial-six-python.html
+# NOTE: basic logic taken from here: https://www.rabbitmq.com/tutorials/tutorial-six-python.html
 class RabbitRPCClient(RabbitWrapper):
     def __init__(self, config: Config):
         super().__init__(config)
+        self.__init_callback_queue()
+
+    def __init_callback_queue(self):
         result = self.channel.queue_declare(queue='', exclusive=True)
         self.__callback_queue = result.method.queue
 
@@ -167,6 +173,9 @@ class RabbitRPCClient(RabbitWrapper):
             self.__response = body
 
     def produce(self, key: str, value: bytes) -> None:
+        channel_recreated = self.declare_queue()
+        if channel_recreated:
+            self.__init_callback_queue()
         self.__response = None
         self.__corr_id = key
         self.channel.basic_publish(

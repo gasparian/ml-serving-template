@@ -7,19 +7,21 @@ I think many of us are used to place trained ML models for inference right insid
 And you can keep doing that, when your models are small enough (like simple image classifiers/detectors) and/or you don't need to query a big amount of data to perform the calculations.  
 **But** the problems start when you're trying to serve really large model, like some modified ResNets or modern [transformers](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)), that can easily take >1..10 Gb of RAM/vRAM.  
 Or you need to perform some heavy map-reduce operation. At this case, it can become too resource-consuming to scale your app coupled with such complex stuff.  
-So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps asynchronously via **RPC**.  
+So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps asynchronously and via **RPC**.  
 **Which gives you at least one important thing: you'll be able to independently scale client services, inference services, message bus and cache.**  
 This repo is a template that you can look at and use some ideas or implementation details in your projects.  
 
 Key points:  
  - implements publish/subscribe interaction model via message queue and kv-storage;  
- - uses [rabbitmq](https://www.rabbitmq.com/) for sending queries from client apps (producers) to the inference services (consumers);  
- - uses [redis](https://redis.io/) for temporarily storing inference results so the producers can grab them. Here the client subscribes to the redis keyspace events and wait until the desired key has been created;  
+ - uses [rabbitmq](https://www.rabbitmq.com/) for sending queries from client apps (producers) to the inference services (consumers), including rabbit RPC;  
+ - no need to worry about rabbit disconnections due to the missed "heartbeats" from clients - connection and channel recreated, when needed (see the [RabbitWrapper](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/wrappers.py) classes);  
+ - uses [redis](https://redis.io/) for temporarily storing inference results so the producers can grab them later;  
  - uses `pickle` for serialization;  
- - producer service only needs to implement a [predictor class](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/inference.py) and just pass it to the [runner](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) on it's side. So basically, you don't need to think about communication internals. See the **[library](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving)** to get more context;  
+ - producer service only need to implement a [Predictor class](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/inference.py) and just pass it to the [ServingConsumer](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) on it's side. So basically, you don't need to think about communication internals. See the **[library](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving)** to get more context;  
  - uses `*.env` files to hold all needed configuration parameters: [main config](https://github.com/gasparian/ml-serving-template/blob/main/variables.env) and [services configs](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext/variables.env);  
+ - you have an option to use synchronous RPC calls to the inference service via [ServingRPCConsumer](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) and [ServingRPCClient](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/client.py) or make it asynchronously and get inference results later, from redis - via [ServingConsumer](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) and [ServingClient](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/client.py);  
 
-And it's always better to look at example code by yourself:  
+And it's always better to look at code examples by yourself:  
  - check out the [library](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml-serving);  
  - example producer - [short-texts-clustering service](https://github.com/gasparian/ml-serving-template/blob/main/producers/short-texts-clustering);  
  - example consumer - [fasttext inference service](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext);  
@@ -76,7 +78,7 @@ proc.consume() # <-- blocking
 On the **producer** side, you just need to replace the usual model initialization and prediction code with the serving client and RPC:  
 ```python
 ...
-from ml_serving.client import ServingClient
+from ml_serving.client import ServingRPCClient
 
 from .config import ClusteringConfig
 
@@ -91,5 +93,8 @@ class FasttextExtractor(TextFeaturesExtractor):
         return self.__model.get_answer()
 ```  
 
-### Config and Library reference  
+### Config reference  
+*TODO*  
+
+### Library reference  
 *TODO*  
