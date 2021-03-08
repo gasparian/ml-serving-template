@@ -1,7 +1,7 @@
 # ml-serving-template  
 Serving large ml models independently and asynchronously via message queue and kv-storage for communication with multiple services.  
 
-<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo3.jpg" height=320/> </p>  
+<p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo4.jpg" height=320/> </p>  
 
 I think many of us are used to place trained ML models for inference right inside the web app with the rest of the logic. Usually, you load the model once, when the app is started, and then run smth like `predict` method from the API handlers.  
 And you can keep doing that, when your models are small enough (like simple image classifiers/detectors) and/or you don't need to query a big amount of data to perform the calculations.  
