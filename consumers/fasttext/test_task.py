@@ -11,7 +11,8 @@ config = Config()
 client = ServingClient(config)
 
 data = "Hello world"
-pred = client.run_prediction(data)
+key = client.run_prediction(data)
+pred = client.wait_answer(key)
 config.logger.info(pred)
 
 client.close()

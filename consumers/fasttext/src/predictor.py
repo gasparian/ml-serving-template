@@ -1,7 +1,6 @@
 import re
 from typing import Union, List, Dict, Any
 
-import ujson
 import fasttext # type: ignore
 import numpy as np
 from ml_serving.inference import PredictorBase # type: ignore

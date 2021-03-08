@@ -31,6 +31,11 @@ class RedisWrapper(object):
         # if the size of a value is large enough
         self.__redis.unlink(key) 
 
+    def withdraw(self, key: str) -> Any:
+        value = self.__getitem__(key)
+        self.delete(key)
+        return value
+
 class RabbitWrapper(object):
     def __init__(self, config: Config):
         self.__logger = config.logger

@@ -22,9 +22,15 @@ class ServingClient(object):
             return ""
         return msg["channel"].decode().split(":")[-1]
 
-    def __get_answer(self, key: str) -> Optional[bytes]:
+    def run_prediction(self, data: Any) -> str:
+        key = str(uuid.uuid4())
+        self.__rabbit.produce(key, pickle.dumps(data))
+        return key
+
+    # TODO: rewrite with rabbit
+    def wait_answer(self, key: str) -> Any:
         total_time = 0.0
-        item = None
+        value = None
         time.sleep(self.__pause)
         while total_time < self.__timeout:
             total_time += self.__pause
@@ -32,19 +38,18 @@ class ServingClient(object):
             if message:
                 msg_key = self.__get_key_from_event(message)
                 if msg_key and (msg_key == key):
-                    item = self.__cache[key]
-                    self.__cache.delete(key)
+                    value = self.__cache.withdraw(key)
                     break
             time.sleep(self.__pause)
-        return item
-            
-    def run_prediction(self, data: Any) -> Any:
-        key = str(uuid.uuid4())
-        self.__rabbit.produce(key, pickle.dumps(data))
-        answer = self.__get_answer(key)
-        if answer:
-            return pickle.loads(answer)
-        return None
+        if value:
+            return pickle.loads(value)
+        return value
+
+    def get_answer(self, key: str) -> Any:
+        value = self.__cache.withdraw(key)
+        if value:
+            return pickle.loads(value)
+        return value
 
     def close(self):
         self.__rabbit.close_connection()

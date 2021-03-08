@@ -55,4 +55,5 @@ class FasttextExtractor(TextFeaturesExtractor):
         self.__model = ServingClient(config)
 
     def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
-        return self.__model.run_prediction(inp)
+        key = self.__model.run_prediction(inp)
+        return self.__model.wait_answer(key)
