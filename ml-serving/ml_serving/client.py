@@ -4,7 +4,7 @@ import pickle
 from typing import Any, Optional
 
 from .config import Config
-from .wrappers import RedisWrapper, RabbitWrapper, RabbitRPCClient
+from .wrappers import RedisWrapper, RabbitWrapper, RabbitRpcClient
 
 class ServingClient(object):
     def __init__(self, config: Config):
@@ -36,9 +36,9 @@ class ServingClient(object):
     def close(self) -> None:
         self.rabbit.close_connection()
 
-class ServingRPCClient(ServingClient):
+class ServingRpcClient(ServingClient):
     def __init__(self, config: Config):
-       self.rabbit = RabbitRPCClient(config)
+       self.rabbit = RabbitRpcClient(config)
 
     def get_answer(self, key: str = "") -> Any:
         value = self.rabbit.wait_answer()

@@ -133,7 +133,7 @@ class RabbitWrapper(object):
     def close_connection(self) -> None:
         self.connection.close()
 
-class RabbitRPCServer(RabbitWrapper):
+class RabbitRpcServer(RabbitWrapper):
     def start_consuming(self, callback: Callable) -> None:
         def cb(ch, method, properties, body):
             response = callback(body)
@@ -154,7 +154,7 @@ class RabbitRPCServer(RabbitWrapper):
         self.channel.start_consuming()
 
 # NOTE: basic logic taken from here: https://www.rabbitmq.com/tutorials/tutorial-six-python.html
-class RabbitRPCClient(RabbitWrapper):
+class RabbitRpcClient(RabbitWrapper):
     def __init__(self, config: Config):
         super().__init__(config)
         self.__init_callback_queue()

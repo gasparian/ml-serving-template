@@ -6,7 +6,7 @@ from threading import Lock
 
 import pika # type: ignore
 from .config import Config # type: ignore
-from .wrappers import RedisWrapper, RabbitWrapper, RabbitRPCServer
+from .wrappers import RedisWrapper, RabbitWrapper, RabbitRpcServer
 from .inference import PredictorBase
 
 class ServingConsumerBase(abc.ABC):
@@ -37,10 +37,10 @@ class ServingConsumer(ServingConsumerBase):
                 self.mutex.release()
         self.__queue.consume(cb)
 
-class ServingRPCConsumer(ServingConsumer):
+class ServingRpcConsumer(ServingConsumer):
     def __init__(self, config: Config, predictor: PredictorBase):
         super().__init__(config, predictor)
-        self.__queue = RabbitRPCServer(config)
+        self.__queue = RabbitRpcServer(config)
 
     def consume(self) -> None:
         def cb(body: bytes) -> Optional[bytes]:
