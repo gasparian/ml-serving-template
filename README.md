@@ -90,7 +90,7 @@ class FasttextExtractor(TextFeaturesExtractor):
 
     def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
         self.__model.run_prediction(inp)
-        return self.__model.get_answer()
+        return self.__model.get_answer() # <-- blocking
 ```  
 
 ### Config reference  
