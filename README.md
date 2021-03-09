@@ -9,7 +9,8 @@ And you can keep doing that, when your models are small enough (like simple imag
 Or you need to perform some heavy map-reduce operation. At this case, it can become too resource-consuming to scale your app coupled with such complex stuff.  
 So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps asynchronously and via **RPC**.  
 **Which gives you at least one important thing: you'll be able to independently scale client services, inference services, message bus and cache.**  
-This repo is a template that you can look at and use some ideas or implementation details in your projects.  
+This repo is a **template** that you can look at and use some ideas or implementation details in your projects.  
+So it's up to you to decide what tools to use - maybe rabbitmq is not the best choice, maybe that could be done with just redis and redismq, etc.  
 
 Key points:  
  - implements publish/subscribe interaction model via message queue and kv-storage;  
