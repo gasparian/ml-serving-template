@@ -65,13 +65,15 @@ class Predictor(PredictorBase):
 And then start listening for messages in the queue. All that you need is to define configuration params and apply here the prediction pipeline that you've defined before:  
 ```python
 from ml_serving.server import ServingRpcConsumer
+from ml_serving.wrappers import RabbitRpcServer
 
 from config import FasttextConfig
 from predictor import Predictor
 
 config = FasttextConfig()
 predictor = Predictor(config.model_path)
-proc = ServingRpcConsumer(config, predictor) 
+rabbit = RabbitRpcServer(config)
+proc = ServingRpcConsumer(config, predictor, rabbit)
 proc.consume() # <-- blocking
 ```  
 
