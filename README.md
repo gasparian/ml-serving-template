@@ -47,7 +47,7 @@ cd ./ml-serving
 python3.8 -m pip install .
 ```  
 Here are small code snippets from the examples above.  
-On the **consumer** side, you just need to first implement the predictor interface:  
+On the [**consumer**](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext/src/predictor.py) side, you just need to first implement the predictor interface:  
 ```python
 
 from typing import Union, List, Any
@@ -75,7 +75,7 @@ proc = ServingRpcConsumer(config, predictor)
 proc.consume() # <-- blocking
 ```  
 
-On the **producer** side, you just need to replace the usual model initialization and prediction code with the serving client and RPC:  
+On the [**producer**](https://github.com/gasparian/ml-serving-template/blob/main/producers/short-texts-clustering/src/clustering/feature_extractors.py) side, you just need to replace the usual model initialization and prediction code with the serving client and RPC:  
 ```python
 ...
 from ml_serving.client import ServingRpcClient
