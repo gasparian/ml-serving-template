@@ -43,7 +43,8 @@ class ServingRpcConsumer(ServingConsumer):
         self.__queue = RabbitRpcServer(config)
 
     def consume(self) -> None:
-        def cb(body: bytes) -> Optional[bytes]:
+        def cb(body: bytes) -> bytes:
+            prediction = None
             self.mutex.acquire()
             try:
                 prediction = self.predictor.predict(pickle.loads(body))
