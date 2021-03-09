@@ -1,5 +1,5 @@
 # ml-serving-template  
-Serving large ml models independently and asynchronously via message queue and kv-storage for communication with multiple services.  
+Serving large ml models independently and asynchronously via message queue and kv-storage for communication with other services.  
 
 <p align="center"> <img src="https://github.com/gasparian/ml-serving-template/blob/main/pics/logo4.jpg" height=320/> </p>  
 
