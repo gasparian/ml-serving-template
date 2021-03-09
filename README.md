@@ -5,7 +5,7 @@ Serving large ml models independently and asynchronously via message queue and k
 
 I think many of us are used to place trained ML models for inference right inside the web app with the rest of the logic. Usually, you load the model once, when the app is started, and then run smth like `predict` method from the API handlers.  
 And you can keep doing that, when your models are small enough (like simple image classifiers/detectors) and/or you don't need to query a big amount of data to perform the calculations.  
-**But** the problems starts when you're trying to serve really large model, like some modified ResNets or modern [transformers](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)), that can easily take >10 Gb of RAM/vRAM.  
+**But** the problems starts when you're trying to serve really large model, like some modified ResNets or modern [transformers](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)), that can easily take >10 Gb of RAM/vRAM. Or your inference pipeline is too slow and you can't go with just a simple synchronous REST service.  
 Or you need to perform some heavy map-reduce operation. At this case, it can become too resource-consuming to scale your app coupled with such complex stuff.  
 So I propose a pretty simple (and obvious) solution - just decouple the heavy model and the rest app logic and create a separate inference service that can be called from other apps asynchronously and via **RPC**.  
 **Which gives you at least one important thing: you'll be able to independently scale client services, inference services, message bus and cache.**  
