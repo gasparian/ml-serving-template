@@ -1,6 +1,6 @@
 import logging
 import random
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from threading import Thread
 
 import redis
@@ -33,7 +33,8 @@ class RedisWrapper(object):
 
     def withdraw(self, key: str) -> Any:
         value = self.__getitem__(key)
-        self.delete(key)
+        if value:
+            self.delete(key)
         return value
 
 class RabbitWrapper(object):
@@ -84,12 +85,8 @@ class RabbitWrapper(object):
         return recreated
     
     def start_consuming(self, callback: Callable) -> None:
-        def cb(ch, method, properties, body):
-            callback(properties, body)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-
         self.channel.basic_qos(prefetch_count=self.prefetch_count)
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=cb)
+        self.channel.basic_consume(queue=self.queue_name, on_message_callback=callback)
         self.channel.start_consuming()
 
     # NOTE: https://pika.readthedocs.io/en/stable/examples/blocking_consume_recover_multiple_hosts.html
@@ -133,26 +130,6 @@ class RabbitWrapper(object):
     def close_connection(self) -> None:
         self.connection.close()
 
-class RabbitRpcServer(RabbitWrapper):
-    def start_consuming(self, callback: Callable) -> None:
-        def cb(ch, method, properties, body):
-            response = callback(body)
-            ch.basic_publish(
-                exchange='',
-                routing_key=properties.reply_to,
-                properties=pika.BasicProperties(
-                    correlation_id=properties.correlation_id
-                ),
-                body=response
-            )
-            key = properties.correlation_id
-            self.logger.info(f" [x] Message {key} processed!")
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-
-        self.channel.basic_qos(prefetch_count=self.prefetch_count)
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=cb)
-        self.channel.start_consuming()
-
 # NOTE: basic logic taken from here: https://www.rabbitmq.com/tutorials/tutorial-six-python.html
 class RabbitRpcClient(RabbitWrapper):
     def __init__(self, config: Config):
@@ -166,13 +143,14 @@ class RabbitRpcClient(RabbitWrapper):
         self.channel.basic_consume(
             queue=self.__callback_queue,
             on_message_callback=self.__on_response,
-            auto_ack=True)
+            auto_ack=True
+        )
 
     def __on_response(self, ch, method, props, body):
         if self.__corr_id == props.correlation_id:
             self.__response = body
 
-    def produce(self, key: str, value: bytes) -> None:
+    def blocking_produce(self, key: str, value: Optional[bytes]) -> None:
         channel_recreated = self.declare_queue()
         if channel_recreated:
             self.__init_callback_queue()
@@ -186,10 +164,9 @@ class RabbitRpcClient(RabbitWrapper):
                 expiration=self.rabbit_ttl,
                 correlation_id=self.__corr_id,
             ),
-            body=value
+            body=value if value else b""
         )
 
-    def wait_answer(self) -> bytes:
         while self.__response is None:
             self.connection.process_data_events()
             self.connection.sleep(0.05)

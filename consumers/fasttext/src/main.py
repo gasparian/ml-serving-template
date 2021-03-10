@@ -1,7 +1,6 @@
 import os
 
-from ml_serving.server import ServingRpcConsumer
-from ml_serving.wrappers import RabbitRpcServer
+from ml_serving.server import ServingRpcPredictor
 from config import FasttextConfig
 from predictor import PredictorMock, Predictor
 config = FasttextConfig()
@@ -17,6 +16,5 @@ else:
         config.logger.warning("Could not find fasttext model. Using fasttext mock instead")
         predictor = PredictorMock()
 
-rabbit = RabbitRpcServer(config)
-proc = ServingRpcConsumer(config, predictor, rabbit)
+proc = ServingRpcPredictor(config, predictor)
 proc.consume()

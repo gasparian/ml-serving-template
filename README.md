@@ -20,7 +20,7 @@ Key points:
  - uses `pickle` for serialization;  
  - producer service only need to implement a [Predictor class](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/inference.py) and just pass it to the [ServingConsumer](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) on it's side. So basically, you don't need to think about communication internals. See the **[library](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving)** to get more context;  
  - uses `*.env` files to hold all needed configuration parameters: [main config](https://github.com/gasparian/ml-serving-template/blob/main/variables.env) and [services configs](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext/variables.env);  
- - you have an option to use synchronous RPC calls to the inference service via [ServingRpcConsumer](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) and [ServingRpcClient](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/client.py) or make it asynchronously and get inference results later, from redis - via [ServingConsumer](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) and [ServingClient](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/client.py);  
+ - you have an option to use synchronous RPC calls to the inference service via [ServingRpcPredictor](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) and [ServingRpcPredictorClient](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/client.py) or make it asynchronously and get inference results later, from redis - via [ServingConsumer](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/server.py) and [ServingClient](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml_serving/client.py);  
 
 And it's always better to look at the code examples by yourself:  
  - check out the [library](https://github.com/gasparian/ml-serving-template/blob/main/ml-serving/ml-serving);  
@@ -65,7 +65,7 @@ class Predictor(PredictorBase):
 ```  
 And then start listening for messages in the queue. All that you need is to define configuration params and apply here the prediction pipeline that you've defined before:  
 ```python
-from ml_serving.server import ServingRpcConsumer
+from ml_serving.server import ServingRpcPredictor
 from ml_serving.wrappers import RabbitRpcServer
 
 from config import FasttextConfig
@@ -74,14 +74,14 @@ from predictor import Predictor
 config = FasttextConfig()
 predictor = Predictor(config.model_path)
 rabbit = RabbitRpcServer(config)
-proc = ServingRpcConsumer(config, predictor, rabbit)
+proc = ServingRpcPredictor(config, predictor, rabbit)
 proc.consume() # <-- blocking
 ```  
 
 On the [**producer**](https://github.com/gasparian/ml-serving-template/blob/main/producers/short-texts-clustering/src/clustering/feature_extractors.py) side, you just need to replace the usual model initialization and prediction code with the serving client and RPC:  
 ```python
 ...
-from ml_serving.client import ServingRpcClient
+from ml_serving.client import ServingRpcPredictorClient
 
 from .config import ClusteringConfig
 
@@ -89,7 +89,7 @@ from .config import ClusteringConfig
 class FasttextExtractor(TextFeaturesExtractor):
     def __init__(self, preprocessor: Callable[[str], str], config: ClusteringConfig):
         super().__init__(preprocessor)
-        self.__model = ServingRpcClient(config)
+        self.__model = ServingRpcPredictorClient(config)
 
     def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
         self.__model.run_prediction(inp)
