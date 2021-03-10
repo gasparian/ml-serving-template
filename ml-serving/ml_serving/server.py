@@ -19,6 +19,19 @@ class ServingConsumerBase(abc.ABC):
     def consume(self) -> None:
         self.__rabbit.consume(self.callback)
 
+    def rpc_wrapper(self, ch, method, properties: pika.spec.BasicProperties, body: bytes):
+        ch.basic_publish(
+            exchange='',
+            routing_key=properties.reply_to,
+            properties=pika.BasicProperties(
+                correlation_id=properties.correlation_id
+            ),
+            body=body
+        )
+        key = properties.correlation_id
+        self.logger.info(f" [x] Message {key} processed!")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
     @abc.abstractmethod
     def callback(self):
         pass
@@ -39,19 +52,6 @@ class ServingPredictor(ServingConsumerBase):
             self.mutex.release()
 
 class ServingRpcPredictor(ServingConsumerBase):
-    def rpc_wrapper(self, ch, method, properties: pika.spec.BasicProperties, body: bytes):
-        ch.basic_publish(
-            exchange='',
-            routing_key=properties.reply_to,
-            properties=pika.BasicProperties(
-                correlation_id=properties.correlation_id
-            ),
-            body=body
-        )
-        key = properties.correlation_id
-        self.logger.info(f" [x] Message {key} processed!")
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-
     def callback(self, ch, method, properties: pika.spec.BasicProperties, body: bytes) -> bytes:
         prediction = None
         self.mutex.acquire()
@@ -61,19 +61,14 @@ class ServingRpcPredictor(ServingConsumerBase):
         finally:
             self.mutex.release()
 
-class ServingCache(ServingRpcPredictor):
+class ServingRpcCache(ServingConsumerBase):
     def __init__(self, config: Config, predictor: PredictorBase):
         super().__init__(config, predictor, rabbit)
         self.__cache = RedisWrapper(config)
 
-    def __get_from_cache(self, body: bytes) -> bytes:
-        key = body.decode("utf-8")
-        value = self.__cache.withdraw(key)
-        return value
-
     def callback(self, ch, method, properties: pika.spec.BasicProperties, body: bytes) -> None:
         key = properties.correlation_id
-        prediction = self.__get_from_cache(key)
-        if not prediction:
-            prediction = pickle.dumps(None)
-        self.rpc_wrapper(ch, method, properties, prediction)
+        value = self.__cache.withdraw(key)
+        if not value:
+            value = pickle.dumps(None)
+        self.rpc_wrapper(ch, method, properties, value)
