@@ -21,6 +21,11 @@ class ServingConsumerBase(abc.ABC):
     def consume(self) -> None:
         self.__rabbit.consume(self.queue_name, self.callback)
 
+    def msg_wrapper(self, ch, method, properties):
+        key = properties.correlation_id
+        self.logger.info(f" [x] Message {key} processed!")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
     def rpc_wrapper(self, ch, method, properties: pika.spec.BasicProperties, body: bytes):
         ch.basic_publish(
             exchange='',
@@ -30,9 +35,7 @@ class ServingConsumerBase(abc.ABC):
             ),
             body=body
         )
-        key = properties.correlation_id
-        self.logger.info(f" [x] Message {key} processed!")
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        self.msg_wrapper(ch, method, properties)
 
     @abc.abstractmethod
     def callback(self):
@@ -49,8 +52,7 @@ class ServingPredictor(ServingConsumerBase):
             key = properties.correlation_id
             prediction = self.predictor.predict(pickle.loads(body))
             self.__cache[key] = pickle.dumps(prediction)
-            self.logger.info(f" [x] Message {key} processed!")
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+            self.msg_wrapper(ch, method, properties)
         except:
             self.logger.info(f" [-] failed to process message {key}")
         finally:
