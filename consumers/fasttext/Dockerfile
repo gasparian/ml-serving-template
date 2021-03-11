@@ -27,10 +27,10 @@ RUN apt-get update \
 
 ###########################################################
 
-COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
 COPY ./consumers/fasttext ./consumers/fasttext
 
-RUN chmod +x /consumers/fasttext/src/main_predictor.py && \
+RUN mv /consumers/fasttext/supervisord.conf /etc/supervisor/conf.d/supervisord.conf && \
+    chmod +x /consumers/fasttext/src/main_predictor.py && \
     chmod +x /consumers/fasttext/src/main_cache.py
 
 EXPOSE 5000
