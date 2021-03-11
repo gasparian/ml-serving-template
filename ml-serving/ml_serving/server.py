@@ -10,7 +10,7 @@ from .wrappers import RedisWrapper, RabbitWrapper
 from .inference import PredictorBase
 
 class ServingConsumerBase(abc.ABC):
-    def __init__(self, config: Config, predictor: Optional[PredictorBase]):
+    def __init__(self, config: Config, predictor: Optional[PredictorBase] = None):
         self.__rabbit = RabbitWrapper(config)
         self.logger = config.logger
         self.mutex = Lock()

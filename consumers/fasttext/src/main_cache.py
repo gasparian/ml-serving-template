@@ -2,8 +2,8 @@
 
 import os
 from ml_serving.server import ServingRpcCache
-from ml_serving.server import Config
+from config import FasttextConfig
 
-config = Config()
+config = FasttextConfig()
 proc = ServingRpcCache(config)
 proc.consume()

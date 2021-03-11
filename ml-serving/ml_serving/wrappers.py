@@ -149,7 +149,7 @@ class RabbitRpcClient(RabbitWrapper):
         if self.__corr_id == props.correlation_id:
             self.__response = body
 
-    def blocking_produce(self, queue_name: str, key: str, value: Optional[bytes]) -> None:
+    def blocking_produce(self, queue_name: str, key: str, value: Optional[bytes] = None) -> None:
         channel_recreated = self.declare_queue(queue_name)
         if channel_recreated:
             self.__init_callback_queue()

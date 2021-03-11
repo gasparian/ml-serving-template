@@ -18,6 +18,6 @@ else:
         config.logger.warning("Could not find fasttext model. Using fasttext mock instead")
         predictor = PredictorMock()
 
-# proc = ServingRpcPredictor(config, predictor)
-proc = ServingPredictor(config, predictor)
+proc = ServingRpcPredictor(config, predictor)
+# proc = ServingPredictor(config, predictor)
 proc.consume()

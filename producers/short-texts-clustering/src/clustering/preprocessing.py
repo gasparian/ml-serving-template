@@ -3,7 +3,7 @@ from typing import Optional, List
 
 class Preprocessor:
 
-    def __init__(self, stop_words: Optional[List[str]], placeholder: str = ""):
+    def __init__(self, stop_words: Optional[List[str]] = [], placeholder: str = ""):
         if stop_words is None:
             stop_words = []
         self.__stop_words = set(stop_words)
