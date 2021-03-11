@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 
 from ml_serving.server import ServingRpcPredictor

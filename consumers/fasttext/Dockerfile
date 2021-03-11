@@ -6,6 +6,7 @@ RUN apt-get clean && apt-get update && \
     apt-get -y install --no-install-recommends \
         build-essential \
         software-properties-common \
+        supervisor \
         && \
     rm -rf /var/lib/apt/lists/*
 
@@ -26,8 +27,12 @@ RUN apt-get update \
 
 ###########################################################
 
+ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
 COPY ./consumers/fasttext ./consumers/fasttext
+
+RUN chmod +x /consumers/fasttext/src/main_predictor.py && \
+    chmod +x /consumers/fasttext/src/main_cache.py
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3", "./consumers/fasttext/src/main.py"]
+ENTRYPOINT ["/usr/bin/supervisord"]

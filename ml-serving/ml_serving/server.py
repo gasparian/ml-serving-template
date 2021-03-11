@@ -10,14 +10,16 @@ from .wrappers import RedisWrapper, RabbitWrapper
 from .inference import PredictorBase
 
 class ServingConsumerBase(abc.ABC):
-    def __init__(self, config: Config, predictor: PredictorBase):
+    def __init__(self, config: Config, predictor: Optional[PredictorBase]):
         self.__rabbit = RabbitWrapper(config)
         self.logger = config.logger
-        self.predictor = predictor
         self.mutex = Lock()
+        self.queue_name = config.queue_name
+        if predictor:
+            self.predictor = predictor
 
     def consume(self) -> None:
-        self.__rabbit.consume(self.callback)
+        self.__rabbit.consume(self.queue_name, self.callback)
 
     def rpc_wrapper(self, ch, method, properties: pika.spec.BasicProperties, body: bytes):
         ch.basic_publish(
@@ -38,7 +40,7 @@ class ServingConsumerBase(abc.ABC):
 
 class ServingPredictor(ServingConsumerBase):
     def __init__(self, config: Config, predictor: PredictorBase):
-        super().__init__(config, predictor, rabbit)
+        super().__init__(config, predictor)
         self.__cache = RedisWrapper(config)
 
     def callback(self, ch, method, properties: pika.spec.BasicProperties, body: bytes) -> None:
@@ -62,9 +64,10 @@ class ServingRpcPredictor(ServingConsumerBase):
             self.mutex.release()
 
 class ServingRpcCache(ServingConsumerBase):
-    def __init__(self, config: Config, predictor: PredictorBase):
-        super().__init__(config, predictor, rabbit)
+    def __init__(self, config: Config):
+        super().__init__(config)
         self.__cache = RedisWrapper(config)
+        self.queue_name = config.cache_queue_name
 
     def callback(self, ch, method, properties: pika.spec.BasicProperties, body: bytes) -> None:
         key = properties.correlation_id

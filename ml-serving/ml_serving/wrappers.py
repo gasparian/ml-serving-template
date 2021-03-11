@@ -44,7 +44,6 @@ class RabbitWrapper(object):
         self.__exchange_type = config.exchange_type
         self.__rabbit_heartbeat_timeout = config.rabbit_heartbeat_timeout
         self.__rabbit_blocked_connection_timeout = config.rabbit_blocked_connection_timeout
-        self.queue_name = config.queue_name
         self.rabbit_ttl = config.rabbit_ttl
         self.exchange_name = config.exchange_name
         self.prefetch_count = config.prefetch_count
@@ -66,7 +65,7 @@ class RabbitWrapper(object):
     def __create_channel(self) -> pika.channel:
         return self.connection.channel()
     
-    def declare_queue(self) -> bool:
+    def declare_queue(self, queue_name: str) -> bool:
         recreated = False
         try:
             self.connection.process_data_events()
@@ -81,22 +80,22 @@ class RabbitWrapper(object):
                 exchange=self.exchange_name, 
                 exchange_type=self.__exchange_type
             )
-        self.channel.queue_declare(queue=self.queue_name, durable=True)
+        self.channel.queue_declare(queue=queue_name, durable=True)
         return recreated
     
-    def start_consuming(self, callback: Callable) -> None:
+    def start_consuming(self, queue_name: str, callback: Callable) -> None:
         self.channel.basic_qos(prefetch_count=self.prefetch_count)
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=callback)
+        self.channel.basic_consume(queue=queue_name, on_message_callback=callback)
         self.channel.start_consuming()
 
     # NOTE: https://pika.readthedocs.io/en/stable/examples/blocking_consume_recover_multiple_hosts.html
-    def consume(self, callback: Callable) -> None:
+    def consume(self, queue_name: str, callback: Callable) -> None:
         while True:
             try:
-                self.declare_queue()
+                self.declare_queue(queue_name)
                 try:
                     self.logger.info(' [*] Start consuming... Waiting for messages. To exit press CTRL+C')
-                    self.start_consuming(callback)
+                    self.start_consuming(queue_name, callback)
                 except KeyboardInterrupt:
                     self.logger.info("Stop consuming...")
                     self.channel.stop_consuming()
@@ -111,11 +110,11 @@ class RabbitWrapper(object):
                 self.logger.error("Connection was closed, retrying...")
                 continue 
 
-    def produce(self, key: str, value: bytes) -> None:
-        self.declare_queue()
+    def produce(self, queue_name: str, key: str, value: bytes) -> None:
+        self.declare_queue(queue_name)
         self.channel.basic_publish(
             exchange=self.exchange_name,
-            routing_key=self.queue_name,
+            routing_key=queue_name,
             body=value, # must be bytes
             properties=pika.BasicProperties(
                 delivery_mode=2,  # make message persistent
@@ -150,15 +149,15 @@ class RabbitRpcClient(RabbitWrapper):
         if self.__corr_id == props.correlation_id:
             self.__response = body
 
-    def blocking_produce(self, key: str, value: Optional[bytes]) -> None:
-        channel_recreated = self.declare_queue()
+    def blocking_produce(self, queue_name: str, key: str, value: Optional[bytes]) -> None:
+        channel_recreated = self.declare_queue(queue_name)
         if channel_recreated:
             self.__init_callback_queue()
         self.__response = None
         self.__corr_id = key
         self.channel.basic_publish(
             exchange=self.exchange_name,
-            routing_key=self.queue_name,
+            routing_key=queue_name,
             properties=pika.BasicProperties(
                 reply_to=self.__callback_queue,
                 expiration=self.rabbit_ttl,

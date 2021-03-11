@@ -15,6 +15,7 @@ class Config(object):
     __allowed = {
         "prefetch_count": int,
         "queue_name": str,
+        "cache_queue_name": str,
         "exchange_type": str,
         "exchange_name": str,
         "rabbit_ttl": str,
