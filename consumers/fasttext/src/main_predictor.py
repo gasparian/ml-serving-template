@@ -2,7 +2,7 @@
 
 import os
 
-from ml_serving.server import ServingRpcPredictor
+from ml_serving.server import ServingRpcPredictor, ServingPredictor
 from config import FasttextConfig
 from predictor import PredictorMock, Predictor
 config = FasttextConfig()
@@ -18,5 +18,6 @@ else:
         config.logger.warning("Could not find fasttext model. Using fasttext mock instead")
         predictor = PredictorMock()
 
-proc = ServingRpcPredictor(config, predictor)
+# proc = ServingRpcPredictor(config, predictor)
+proc = ServingPredictor(config, predictor)
 proc.consume()

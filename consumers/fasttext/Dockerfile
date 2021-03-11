@@ -27,7 +27,7 @@ RUN apt-get update \
 
 ###########################################################
 
-ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
 COPY ./consumers/fasttext ./consumers/fasttext
 
 RUN chmod +x /consumers/fasttext/src/main_predictor.py && \
