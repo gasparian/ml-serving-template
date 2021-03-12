@@ -5,6 +5,7 @@ from threading import Thread
 
 import redis
 import pika # type: ignore
+from pika.adapters.blocking_connection import BlockingChannel # type: ignore
 from .config import Config
 
 class RedisWrapper(object):
@@ -84,8 +85,17 @@ class RabbitWrapper(object):
         return recreated
     
     def start_consuming(self, queue_name: str, callback: Callable) -> None:
+        def cb(ch: BlockingChannel, method: pika.spec.Basic.Deliver, properties: pika.spec.BasicProperties, body: bytes):
+            key = properties.correlation_id
+            try:
+                callback(ch, method, properties, body)
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+                self.logger.info(f" [x] Message {key} processed!")
+            except:
+                self.logger.info(f" [-] failed to process message {key}")
+
         self.channel.basic_qos(prefetch_count=self.prefetch_count)
-        self.channel.basic_consume(queue=queue_name, on_message_callback=callback)
+        self.channel.basic_consume(queue=queue_name, on_message_callback=cb)
         self.channel.start_consuming()
 
     # NOTE: https://pika.readthedocs.io/en/stable/examples/blocking_consume_recover_multiple_hosts.html
