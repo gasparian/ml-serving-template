@@ -77,6 +77,8 @@ proc = ServingRpcPredictor(config, predictor)
 proc.consume() # <-- blocking
 ```  
 
+And **don't forget**, that if you want to communicate asynchronously, you need to run [**one more**](https://github.com/gasparian/ml-serving-template/blob/main/consumers/fasttext/supervisord.conf) consumer which will be acquiring requests on getting the calculation results.  
+
 On the [**producer**](https://github.com/gasparian/ml-serving-template/blob/main/producers/short-texts-clustering/src/clustering/feature_extractors.py) side, you just need to replace the usual model initialization and prediction code with the serving client and RPC:  
 ```python
 ...
