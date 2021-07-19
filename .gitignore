@@ -3,3 +3,4 @@
 /.mypy*
 *__pycache__*
 */models*
+.vscode

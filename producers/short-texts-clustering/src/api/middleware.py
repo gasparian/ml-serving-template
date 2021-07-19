@@ -6,7 +6,7 @@ import falcon
 def timer() -> float:
     return int(round(time.perf_counter() * 1000))
 
-class ResponseLoggerMiddleware(object):
+class ResponseLogger(object):
     def __init__(self, logger):
         self.logger = logger
 

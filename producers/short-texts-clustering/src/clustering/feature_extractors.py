@@ -1,58 +1,50 @@
-import abc
-import os
-from typing import Union, Callable, List, Any
+import re
+from typing import Union, List, Any
 
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
-from ml_serving.client import ServingClient
+from sklearn.base import BaseEstimator, TransformerMixin
 
+from ml_serving.client import ServingClient
 from .config import ClusteringConfig
 
-class TextFeaturesExtractor(abc.ABC):
-    def __init__(self, preprocessor: Callable[[str], str]):
-        self.__preprocessor = preprocessor
+class FasttextExtractor(BaseEstimator, TransformerMixin):
+    def __init__(self, config: ClusteringConfig):
+        self.model = ServingClient(config)
 
-    def __preprocess_text(self, inp: str) -> str:
-        assert(isinstance(inp, str))
-        return self.__preprocessor(inp)
+    def fit(self, X: Any = None, y: Any = None) -> TransformerMixin:
+        return self
 
-    def preprocess_texts(self, inp: Union[List, np.ndarray]) -> np.ndarray:
-        assert(isinstance(inp, list) or isinstance(inp, np.ndarray))
-        return np.array(list(map(lambda text: self.__preprocess_text(text), inp)), dtype=str)
+    def transform(self, X: Union[List[str], np.ndarray]) -> np.ndarray:
+        return self.model.predict_sync(X)
 
-    @abc.abstractmethod
-    def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
-        pass
-    
-class TfidfExtractor(TextFeaturesExtractor):
-    def __init__(self, preprocessor: Callable[[str], str]):
-        super().__init__(preprocessor)
-        self.model = TfidfVectorizer( 
-            strip_accents="unicode", 
-            lowercase=False, 
-            preprocessor=None, 
-            tokenizer=None, 
-            analyzer='char', # char_wb/char works pretty good
-            token_pattern='\w+', 
-            ngram_range=(3, 30), # 3-12 / 3-20 / 3-30
-            max_df=0.9, 
-            min_df=2, 
-            max_features=None, 
-            vocabulary=None, 
-            binary=False, 
-            norm='l2',
-            use_idf=True, 
-            smooth_idf=True, 
-            sublinear_tf=False
-        )
-    
-    def get_features(self, inp: Union[List[str], np.ndarray]) -> np.ndarray:
-        return self.model.fit_transform(inp).toarray()
+# NOTE: only for tests without feature extraction service
+class FasttextMock(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        self.__model = lambda w: self.__get_word_vec(w)
+        self.__regex = re.compile("[^0-9a-zA-Z]+")
 
-class FasttextExtractor(TextFeaturesExtractor):
-    def __init__(self, preprocessor: Callable[[str], str], config: ClusteringConfig):
-        super().__init__(preprocessor)
-        self.__model = ServingClient(config)
+    def fit(self, X: Any = None, y: Any = None) -> TransformerMixin:
+        return self
 
-    def get_features(self, inp: Union[List[str], np.ndarray]) -> Any:
-        return self.__model.predict_sync(inp)
+    def __get_word_vec(self, word: str):
+        d = np.zeros(300)
+        for i, l in enumerate(word):
+            idx = min(299, int(l) - 97)
+            d[idx] += 1
+        return d
+
+    def __predict_single(self, text: str) -> np.ndarray:
+        splitted = list(self.__regex.sub("", text))
+        mean_vec = np.zeros(300)
+        for w in splitted:
+            mean_vec[:] = self.__model(w.lower().encode("utf-8"))
+            break
+        return np.concatenate([mean_vec for i in range(3)])
+
+    def transform(self, X: Union[List[str], np.ndarray]) -> np.ndarray:
+        if isinstance(X, str):
+            X = [X]
+        result = np.empty(len(X), 900)
+        for i, text in enumerate(X):
+            result[i] = self.__predict_single(text)
+        return result
