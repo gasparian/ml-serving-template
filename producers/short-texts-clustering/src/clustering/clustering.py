@@ -1,6 +1,7 @@
 from typing import Any
 
 import numpy as np
+from requests.api import get
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.base import BaseEstimator, ClusterMixin
 
@@ -11,7 +12,7 @@ def align_labels(labels: np.ndarray) -> np.ndarray:
     result_labels = np.copy(labels)
     for i, label in enumerate(uniques):
         result_labels[labels == label] = i
-    return labels
+    return result_labels
 
 def get_cosine_distances(arr: np.ndarray) -> np.ndarray:
     similarity = np.dot(arr, arr.T)

@@ -4,7 +4,7 @@ from ml_serving import Config as ServingConfig
 class FasttextConfig(ServingConfig):
     redis_ttl: int
     model_path: str
-    rpc: int
+    queue_only: int
 
     def __init__(self, **kwargs):
         super().__init__()
