@@ -17,7 +17,7 @@ TEST_CASE_POS: Dict[str, str] = {
 }
 
 ANSWER_POS: Dict[str, List[str]] = {
-    "labels": {"-1": ["m"], "1": ["a", "b", "c", "d"], "2": ["e", "f", "g", "h"], "3": ["i", "j", "k", "l"]}
+    "-1": ["m"], "0": ["a", "b", "c", "d"], "1": ["e", "f", "g", "h"], "2": ["i", "j", "k", "l"]
 }
 
 TEST_CASE_NEG: Dict[str, str] = {
@@ -29,5 +29,5 @@ TEST_CASE_NEG: Dict[str, str] = {
 }
 
 ANSWER_NEG: Dict[str, List[str]] = {
-    "labels": {"-1": ["a", "b", "c", "d", "e"]}
+    "-1": ["a", "b", "c", "d", "e"]
 }

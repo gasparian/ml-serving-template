@@ -18,8 +18,7 @@ WORKDIR /ml-serving
 RUN python3 -m pip --no-cache-dir install .
 WORKDIR /
 
-RUN apt-get update \
-    && apt-get purge -y \
+RUN apt-get purge -y \
        build-essential \
     && apt-get clean \
     && apt-get autoremove -y \

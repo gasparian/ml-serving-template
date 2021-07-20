@@ -12,13 +12,13 @@ Extract fasttext features --> Form clusters using complete-linkage algorithm wit
 Download pretrained [fasttext model](https://fasttext.cc/docs/en/crawl-vectors.html).  
 Manual build and run docker:  
 ```
-docker build -t semantic-clustering:latest .
+docker build -t short-texts-clustering:latest .
 docker run --rm -it \
            -v ${FASTTEXT_PATH}:/fasttext \
            --env-file ./variables.env \
-           -p 8010:5000 semantic-clustering:latest
+           -p 8010:5000 short-texts-clustering:latest
 ```  
-Or do the same but via docker-compose (don't forget to modify `docker-compose.yaml`):  
+Or do the same but via docker-compose (don't forget to modify `docker-compose.yaml`, at least change path to the feature extractor):  
 ```
 docker-compose build
 docker-compose up

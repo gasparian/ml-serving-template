@@ -35,7 +35,7 @@ class Predictor(PredictorBase):
     def predict(self, data: Union[str, List[str], np.ndarray]) -> np.ndarray:
         if isinstance(data, str):
             data = [data]
-        result = np.empty(len(data), 900)
+        result = np.empty((len(data), 900))
         for i, text in enumerate(data):
             result[i] = self.__predict_single(text)
         return result

@@ -1,4 +1,4 @@
-import logging
+import traceback
 import random
 from typing import Any, Callable, Optional
 from threading import Thread
@@ -91,8 +91,8 @@ class RabbitWrapper(object):
                 callback(ch, method, properties, body)
                 ch.basic_ack(delivery_tag=method.delivery_tag)
                 self.logger.info(f" [x] Message {key} processed!")
-            except:
-                self.logger.info(f" [-] failed to process message {key}")
+            except Exception:
+                self.logger.info(f" [-] failed to process message {key}: {traceback.format_exc()}")
 
         self.channel.basic_qos(prefetch_count=self.prefetch_count)
         self.channel.basic_consume(queue=queue_name, on_message_callback=cb)

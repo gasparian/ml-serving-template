@@ -1,16 +1,11 @@
-import os
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import ujson
+from typing import Dict, List
 import unittest
-
 import requests
+import ujson
 
 import cases
-from server.handlers import ClientInput, Labels, ClusteringAnswer
 
-def labels_check(inp: Labels, gt: Labels) -> bool: 
+def labels_check(inp: Dict[str, List[str]], gt: Dict[str, List[str]]) -> bool: 
     for v_gt in gt.values():
         found = False
         for v_inp in inp.values():
@@ -25,12 +20,12 @@ def labels_check(inp: Labels, gt: Labels) -> bool:
 class TestClustering(unittest.TestCase):
     _endpoint = "http://localhost:5000/api/v1/predict"
 
-    def check(self, test_case: ClientInput, answer: ClusteringAnswer) -> None:
+    def check(self, test_case: Dict[str, str], answer: Dict[str, List[str]]) -> None:
         serilized_test_case = ujson.dumps(test_case)
         response = requests.post(self._endpoint, data=serilized_test_case)
         resp_content = ujson.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(labels_check(resp_content["labels"], answer["labels"]))
+        self.assertTrue(labels_check(resp_content, answer))
 
     def test_positive(self):
         self.check(cases.TEST_CASE_POS, cases.ANSWER_POS)

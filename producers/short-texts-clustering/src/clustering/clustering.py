@@ -8,9 +8,20 @@ def align_labels(labels: np.ndarray) -> np.ndarray:
     indexes = sorted(np.unique(labels, return_index=True)[1])
     uniques = np.array([labels[i] for i in indexes])
     uniques = uniques[uniques > -1]
+    result_labels = np.copy(labels)
     for i, label in enumerate(uniques):
-        labels[labels == label] = i
+        result_labels[labels == label] = i
     return labels
+
+def get_cosine_distances(arr: np.ndarray) -> np.ndarray:
+    similarity = np.dot(arr, arr.T)
+    square_mag = np.diag(similarity)
+    inv_square_mag = 1 / square_mag
+    inv_square_mag[np.isinf(inv_square_mag)] = 0
+    inv_mag = np.sqrt(inv_square_mag)
+    cosine = similarity * inv_mag
+    cosine = cosine.T * inv_mag
+    return 1 - cosine
 
 class Clustering(BaseEstimator, ClusterMixin):
     def __init__(self, min_cluster_size: int = 2, cosine_thrsh: float = 0.4):

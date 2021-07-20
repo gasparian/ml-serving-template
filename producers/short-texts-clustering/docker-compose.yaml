@@ -1,11 +1,11 @@
 version: '2.4'
 
 services:
-  semantic-clustering:
+  short-texts-clustering:
     build:
       context: ../..
       dockerfile: ./producers/short-texts-clustering/Dockerfile
-    image: semantic-clustering:latest
+    image: short-texts-clustering:latest
     # NOTE: network_mode here is only for test purposes - 
     #       - in real life rabbit and redis usually not running 
     #       on the same machine with your app

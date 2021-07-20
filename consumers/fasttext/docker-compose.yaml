@@ -14,7 +14,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - "/samsung_drive/fasttext:/fasttext"
+      - "/fasttext:/fasttext"
     env_file:
       - "../../variables.env"
       - "variables.env"
