@@ -56,7 +56,6 @@ Output:
 {
    "status": "{success | failed}",
    "result": {
-        "titles": {"-1": "cluter title", "1": "another one", ...},
         "labels": {"-1": ["id1", "id2", ...], "1": ["id3", "id4"], ...}
    }
 }

@@ -14,7 +14,7 @@ logging.basicConfig(
 logger = logging.getLogger()
 config = ClusteringConfig()
 
-app = api.App(config, logger).create()
+app = api.create(config, logger)
 
 logger.info("Listening on http://localhost:5000/")
 bjoern.run(app, "0.0.0.0", 5000, reuse_port=True)

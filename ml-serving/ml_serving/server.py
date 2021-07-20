@@ -32,7 +32,7 @@ class ServingConsumerBase(abc.ABC):
     def callback(self):
         pass
 
-class ServingPredictor(ServingConsumerBase):
+class ServingCache(ServingConsumerBase):
     def __init__(self, config: Config, predictor: PredictorBase):
         super().__init__(config, predictor)
         self.__cache = RedisWrapper(config)
@@ -42,9 +42,8 @@ class ServingPredictor(ServingConsumerBase):
         prediction = self.predictor.predict(pickle.loads(body))
         self.__cache[key] = pickle.dumps(prediction)
 
-class ServingRpcPredictor(ServingConsumerBase):
+class ServingRpc(ServingConsumerBase):
     def callback(self, ch: BlockingChannel, method: pika.spec.Basic.Deliver, properties: pika.spec.BasicProperties, body: bytes) -> bytes:
-        prediction = None
         prediction = self.predictor.predict(pickle.loads(body))
         self.rpc_wrapper(ch, method, properties, pickle.dumps(prediction))
 

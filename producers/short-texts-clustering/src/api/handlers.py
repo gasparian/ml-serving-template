@@ -10,7 +10,7 @@ import falcon
 import ujson
 from sklearn.pipeline import Pipeline
 
-from clustering import Clustering, FasttextExtractor, Preprocessor
+from clustering import Clustering, FasttextExtractor, Preprocessor, ClusteringConfig
 
 class Status(object):
     def on_get(self, req, resp):
@@ -18,11 +18,11 @@ class Status(object):
         resp.status = falcon.HTTP_200
 
 class ClusteringPipelineHandler:
-    def __init__(self, prep: Preprocessor, extractor: FasttextExtractor, cluster: Clustering):
+    def __init__(self, config: ClusteringConfig):
         self.pipe = Pipeline([
-            ("prep", prep),
-            ("extractor", extractor),
-            ("cluster", cluster)
+            ("prep", Preprocessor()),
+            ("extractor", FasttextExtractor(config)),
+            ("cluster", Clustering(config.min_cluster_size, config.cosine_thrsh))
         ])
 
     def _get_clusters(self, inp: Dict[str, str]) -> Dict[str, List[str]]:
